@@ -1,0 +1,126 @@
+<!doctype html><html lang=en-us><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=https://cloudflare-ipfs.com/ipfs/bafybeifgyesyxxtia5lxe7exyfkhb6dcbopd6rgenhu3eih4n4epqrxiy4></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=About>About</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=Posts>Posts</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=Categories>Categories</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me@gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Java内存缓存-通过Google Guava创建缓存</h3><small class=text-muted>Published August 23, 2019</small></div><article><h2 id=谷歌guava缓存>谷歌Guava缓存</h2><h3 id=guava介绍>Guava介绍</h3><p>Guava是Google guava中的一个内存缓存模块，用于将数据缓存到JVM内存中。实际项目开发中经常将一些公共或者常用的数据缓存起来方便快速访问。</p><p><img src=https://xueyao.oss-cn-hangzhou.aliyuncs.com/2019/8/cache-guava-01.png alt></p><p>Guava Cache是单个应用运行时的本地缓存。它不把数据存放到文件或外部服务器。如果不符合需求，可以选择Memcached、Redis等工具。</p><h3 id=小案例>小案例</h3><blockquote><p>pom.xml添加guava依赖</p></blockquote><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>me.xueyao.cache<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>java-demo<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>1.0.0<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>javax.cache<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>cache-api<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>1.1.0<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>com.google.guava<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>guava<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>27.0.1-jre<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependencies&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
+</span></span></code></pre></div><blockquote><p>GuavaCacheDemo.java 代码如下：</p></blockquote><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.cache.java.guava;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.google.common.cache.*;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.cache.java.pojo.User;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.concurrent.ExecutionException;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.concurrent.TimeUnit;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author simon
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * https://github.com/google/guava
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>GuavaCacheDemo</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> ExecutionException {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//缓存接口这里是LoadingCache，LoadingCache在缓存项不存在时可以自动加载缓存</span>
+</span></span><span style=display:flex><span>        LoadingCache<span style=color:#f92672>&lt;</span>String, User<span style=color:#f92672>&gt;</span> userCache
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//CacheBuilder的构造函数是私有的，只能通过其静态方法newBuilder()来获得CacheBuilder的实例</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>=</span> CacheBuilder.<span style=color:#a6e22e>newBuilder</span>()
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//设置并发级别为8，并发级别是指可以同时写缓存的线程数</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>concurrencyLevel</span>(8)
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//设置写缓存后8秒钟过期</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>expireAfterWrite</span>(8, TimeUnit.<span style=color:#a6e22e>SECONDS</span>)
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//设置写缓存后1秒钟刷新</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>refreshAfterWrite</span>(1, TimeUnit.<span style=color:#a6e22e>SECONDS</span>)
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//设置缓存容器的初始容量为5</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>initialCapacity</span>(5)
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//设置缓存最大容量为100，超过100之后就会按照LRU最近虽少使用算法来移除缓存项</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>maximumSize</span>(100)
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//设置要统计缓存的命中率</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>recordStats</span>()
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//设置缓存的移除通知</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>removalListener</span>(<span style=color:#66d9ef>new</span> RemovalListener<span style=color:#f92672>&lt;</span>Object, Object<span style=color:#f92672>&gt;</span>() {
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>onRemoval</span>(RemovalNotification<span style=color:#f92672>&lt;</span>Object, Object<span style=color:#f92672>&gt;</span> notification) {
+</span></span><span style=display:flex><span>                        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(notification.<span style=color:#a6e22e>getKey</span>() <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34; 被移除了，原因： &#34;</span> <span style=color:#f92672>+</span> notification.<span style=color:#a6e22e>getCause</span>());
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                })
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//build方法中可以指定CacheLoader，在缓存不存在时通过CacheLoader的实现自动加载缓存</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>build</span>(
+</span></span><span style=display:flex><span>                        <span style=color:#66d9ef>new</span> CacheLoader<span style=color:#f92672>&lt;</span>String, User<span style=color:#f92672>&gt;</span>() {
+</span></span><span style=display:flex><span>                            <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>                            <span style=color:#66d9ef>public</span> User <span style=color:#a6e22e>load</span>(String key) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>                                System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;缓存没有时，从数据库加载&#34;</span> <span style=color:#f92672>+</span> key);
+</span></span><span style=display:flex><span>                                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>new</span> User(<span style=color:#e6db74>&#34;tony&#34;</span> <span style=color:#f92672>+</span> key, key);
+</span></span><span style=display:flex><span>                            }
+</span></span><span style=display:flex><span>                        }
+</span></span><span style=display:flex><span>                );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 第一次读取</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> 0; i <span style=color:#f92672>&lt;</span> 10; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            User user <span style=color:#f92672>=</span> userCache.<span style=color:#a6e22e>get</span>(<span style=color:#e6db74>&#34;uid&#34;</span> <span style=color:#f92672>+</span> i);
+</span></span><span style=display:flex><span>            System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(user);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 第二次读取</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> 0; i <span style=color:#f92672>&lt;</span> 10; i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            User user <span style=color:#f92672>=</span> userCache.<span style=color:#a6e22e>get</span>(<span style=color:#e6db74>&#34;uid&#34;</span> <span style=color:#f92672>+</span> i);
+</span></span><span style=display:flex><span>            System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(user);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;cache stats:&#34;</span>);
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//最后打印缓存的命中率等 情况</span>
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(userCache.<span style=color:#a6e22e>stats</span>().<span style=color:#a6e22e>toString</span>());
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><blockquote><p>User.java 代码如下：</p></blockquote><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.cache.java.pojo;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.io.Serializable;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author simon
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span> <span style=color:#66d9ef>implements</span> Serializable {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String userName;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String userId;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>User</span>(String userName, String userId) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>userName</span> <span style=color:#f92672>=</span> userName;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>userId</span> <span style=color:#f92672>=</span> userId;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>getUserId</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> userId;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setUserId</span>(String userId) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>userId</span> <span style=color:#f92672>=</span> userId;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>getUserName</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> userName;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>toString</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> userId <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34; --- &#34;</span> <span style=color:#f92672>+</span> userName;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>运行后的结果如下：</p><p><img src=https://xueyao.oss-cn-hangzhou.aliyuncs.com/2019/8/cache-guava-02.png alt></p><p>第一次循环时缓存中没有数据，构建了缓存，第二次直接命中缓存。如果程序需要单机内存缓存，可以用该方式构建缓存。</p></article></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>

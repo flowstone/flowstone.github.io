@@ -1,0 +1,95 @@
+<!doctype html><html lang=en-us><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=https://cloudflare-ipfs.com/ipfs/bafybeifgyesyxxtia5lxe7exyfkhb6dcbopd6rgenhu3eih4n4epqrxiy4></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=About>About</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=Posts>Posts</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=Categories>Categories</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me@gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>React Ant框架中分页的快速使用</h3><small class=text-muted>Published January 1, 2021</small></div><article><h3 id=使用环境>使用环境</h3><ul><li>React</li><li>Ant Design</li><li>SpringBoot</li><li>Spring Data JPA</li></ul><h3 id=前端页面>前端页面</h3><p>首先，我们要查看Ant官方文档，一般涉及到分页的页面都是列表查询，在表格组件中找到API，可以从API中看到使用方法，查看文档后，编写代码如下</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>Pagination</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//默认当前页是接口返回的当前页
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>defaultCurrent</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>responseParam</span>.<span style=color:#a6e22e>pageNum</span>}
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//每页条数 取得是接口返回的每页条数
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>pageSize</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>responseParam</span>.<span style=color:#a6e22e>pageSize</span>}
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//总条数  取得是接口返回的总条数
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>total</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>responseParam</span>.<span style=color:#a6e22e>count</span>}
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//指定每页可以显示多少条	
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>pageSizeOptions</span><span style=color:#f92672>=</span>{[<span style=color:#e6db74>&#34;2&#34;</span>,<span style=color:#e6db74>&#34;4&#34;</span>,<span style=color:#e6db74>&#34;6&#34;</span>]}
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//是否展示 pageSize 切换器
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>showSizeChanger</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/**页码改变的回调，参数是改变后的页码及每页条数
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    * @param page 改变后页码
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    * @param pageSize 每页条数
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    */</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>onChange</span><span style=color:#f92672>=</span>{(<span style=color:#a6e22e>page</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>any</span>, <span style=color:#a6e22e>pageSize</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>any</span>) =&gt; {
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>console</span>.<span style=color:#a6e22e>log</span>(<span style=color:#e6db74>&#39;page = &#39;</span>, <span style=color:#a6e22e>page</span>, <span style=color:#a6e22e>pageSize</span>);
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>setRequestParam</span>(<span style=color:#a6e22e>param</span> =&gt; ({
+</span></span><span style=display:flex><span>        ...<span style=color:#a6e22e>param</span>,
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//修改页码
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>pageNum</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>page</span>,
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//修改每页条数
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>pageSize</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>pageSize</span>
+</span></span><span style=display:flex><span>      }));
+</span></span><span style=display:flex><span>    }}<span style=color:#f92672>/&gt;</span>
+</span></span></code></pre></div><p>requestParam定义格式如下:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#66d9ef>const</span> [<span style=color:#a6e22e>requestParam</span>, <span style=color:#a6e22e>setRequestParam</span>] <span style=color:#f92672>=</span> <span style=color:#a6e22e>useState</span>({
+</span></span><span style=display:flex><span>   <span style=color:#75715e>//给页码默认值
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>pageNum</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//每页条数默认值
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>pageSize</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>10</span>
+</span></span><span style=display:flex><span>  });
+</span></span></code></pre></div><p>当每次我们修改requestParam的值时，就会重新调用接口渲染页面，如下所示:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#a6e22e>useEffect</span>(() =&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//调用查询接口
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>loadData</span>();
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>  }, [<span style=color:#a6e22e>requestParam</span>]);
+</span></span></code></pre></div><h3 id=后端接口>后端接口</h3><p>接口的请求参数，主要包含pageNum和pageSize,如下所示:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@GetMapping</span>(<span style=color:#e6db74>&#34;/list/{pageNum}/{pageSize}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> R <span style=color:#a6e22e>list</span>(<span style=color:#a6e22e>@PathVariable</span>(<span style=color:#e6db74>&#34;pageNum&#34;</span>) Integer pageNum,
+</span></span><span style=display:flex><span>              <span style=color:#a6e22e>@PathVariable</span>(<span style=color:#e6db74>&#34;pageSize&#34;</span>) Integer pageSize) {
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> smsTemplateService.<span style=color:#a6e22e>list</span>(PageRequest.<span style=color:#a6e22e>of</span>(pageNum<span style=color:#f92672>-</span>1, pageSize));
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>PageRequest.of()静态方法会返回一个PageRequest对象，为什么pageNum-1？查看源码如下:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * Creates a new unsorted {@link PageRequest}.
+</span></span></span><span style=display:flex><span><span style=color:#75715e> *
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @param page zero-based page index, must not be negative.
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @param size the size of the page to be returned, must be greater than 0.
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @since 2.0
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> PageRequest <span style=color:#a6e22e>of</span>(<span style=color:#66d9ef>int</span> page, <span style=color:#66d9ef>int</span> size) {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> of(page, size, Sort.<span style=color:#a6e22e>unsorted</span>());
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>从上述静态方法中，可以得知，pageNum是从0开始计算，故pageNum-1,下面是接口具体实现</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e>* @param pageable  此处pageable为接口定义，前面PageRequest是它的一种实现
+</span></span></span><span style=display:flex><span><span style=color:#75715e>*/</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> R <span style=color:#a6e22e>list</span>(Pageable pageable) {
+</span></span><span style=display:flex><span>    Page<span style=color:#f92672>&lt;</span>SmsTemplate<span style=color:#f92672>&gt;</span> smsTemplates <span style=color:#f92672>=</span>  smsTemplateRepository.<span style=color:#a6e22e>findAll</span>(pageable);
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>SmsTemplateVo<span style=color:#f92672>&gt;</span> smsTemplateVos <span style=color:#f92672>=</span> smsTemplates.<span style=color:#a6e22e>getContent</span>().<span style=color:#a6e22e>stream</span>().<span style=color:#a6e22e>map</span>(smsTemplate <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>        SmsTemplateVo smsTemplateVo <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> SmsTemplateVo();
+</span></span><span style=display:flex><span>        BeanUtils.<span style=color:#a6e22e>copyProperties</span>(smsTemplate, smsTemplateVo);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> smsTemplateVo;
+</span></span><span style=display:flex><span>    }).<span style=color:#a6e22e>collect</span>(Collectors.<span style=color:#a6e22e>toList</span>());
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> R.<span style=color:#a6e22e>ofSuccess</span>(<span style=color:#e6db74>&#34;查询成功&#34;</span>, <span style=color:#66d9ef>new</span> PageResult<span style=color:#f92672>&lt;&gt;</span>(smsTemplateVos, smsTemplates));
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接口返回的结果的示例，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;code&#34;</span>:<span style=color:#ae81ff>200</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;message&#34;</span>:<span style=color:#e6db74>&#34;查询成功&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;data&#34;</span>:{
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;pageNum&#34;</span>:<span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;pageSize&#34;</span>:<span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;count&#34;</span>:<span style=color:#ae81ff>6</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;result&#34;</span>:[
+</span></span><span style=display:flex><span>            {
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;id&#34;</span>:<span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;sendAccount&#34;</span>:<span style=color:#e6db74>&#34;13130000000&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;smsSign&#34;</span>:<span style=color:#e6db74>&#34;方方[已审核]&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;type&#34;</span>:<span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;content&#34;</span>:<span style=color:#e6db74>&#34;你的短信验证码是123456,请勿将验证码泄露给他人。&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;reason&#34;</span>:<span style=color:#e6db74>&#34;测试111&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;notice&#34;</span>:<span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;createTime&#34;</span>:<span style=color:#e6db74>&#34;2021-01-15 14:02:55&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;updateTime&#34;</span>:<span style=color:#e6db74>&#34;2021-01-15 14:02:55&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;creator&#34;</span>:<span style=color:#e6db74>&#34;xiaoming&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&#34;updater&#34;</span>:<span style=color:#66d9ef>null</span>
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        ]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></article></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>

@@ -1,0 +1,312 @@
+<!doctype html><html lang=en-us><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=https://cloudflare-ipfs.com/ipfs/bafybeifgyesyxxtia5lxe7exyfkhb6dcbopd6rgenhu3eih4n4epqrxiy4></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=About>About</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=Posts>Posts</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=Categories>Categories</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me@gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Ehcache缓存简单使用</h3><small class=text-muted>Published November 25, 2017</small></div><article><h4 id=spring整合ehcache>SPRING整合EHCACHE</h4><h5 id=1引入坐标>1.引入坐标</h5><p>pom.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!-- ehcache的缓存框架 --&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>net.sf.ehcache<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>ehcache-core<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>2.6.10<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>&lt;!-- spring整合第三方框架的 --&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>spring-context-support<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>${spring.version}<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span></code></pre></div><h5 id=2配置ehcache>2.配置Ehcache</h5><p>ehcache.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;ehcache</span> <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span style=color:#a6e22e>xsi:noNamespaceSchemaLocation=</span><span style=color:#e6db74>&#34;../config/ehcache.xsd&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 硬盘上缓存的临时目录 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;diskStore</span> <span style=color:#a6e22e>path=</span><span style=color:#e6db74>&#34;java.io.tmpdir&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    maxElementsInMemory:内存中最大存放的元素的个数
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    eternal：是否永生，默认是false
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    timeToIdleSeconds：发呆闲置的时间，超过该时间，被清除，单位秒
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    timeToLiveSeconds：存活的事件，超过该时间被清除
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    maxElementsOnDisk：如果内存满了，溢出到硬盘上的临时目录中的存放的元素的个数
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    diskExpiryThreadIntervalSeconds：轮询时间，巡视组
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    memoryStoreEvictionPolicy：内存对象的清理策略，如果满了，怎么办?
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    策略有三个：LRU、LFU、FIFO
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    LRU:最少使用被清理，次数
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    LFU：时间，闲置最长的时间
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    FIFO：管道策略，先进先出
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     --&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;defaultCache</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>maxElementsInMemory=</span><span style=color:#e6db74>&#34;10000&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>eternal=</span><span style=color:#e6db74>&#34;false&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>timeToIdleSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>timeToLiveSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>maxElementsOnDisk=</span><span style=color:#e6db74>&#34;10000000&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>diskExpiryThreadIntervalSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>memoryStoreEvictionPolicy=</span><span style=color:#e6db74>&#34;LRU&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;persistence</span> <span style=color:#a6e22e>strategy=</span><span style=color:#e6db74>&#34;localTempSwap&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/defaultCache&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- Spring整合的菜单缓存 --&gt;</span>
+</span></span><span style=display:flex><span>     <span style=color:#f92672>&lt;cache</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;project_menu_cache&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>maxElementsInMemory=</span><span style=color:#e6db74>&#34;10000&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>eternal=</span><span style=color:#e6db74>&#34;false&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>timeToIdleSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>timeToLiveSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>maxElementsOnDisk=</span><span style=color:#e6db74>&#34;10000000&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>diskExpiryThreadIntervalSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>memoryStoreEvictionPolicy=</span><span style=color:#e6db74>&#34;LRU&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;persistence</span> <span style=color:#a6e22e>strategy=</span><span style=color:#e6db74>&#34;localTempSwap&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/cache&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/ehcache&gt;</span>
+</span></span></code></pre></div><h5 id=3配置spring整合ehcache>3.配置Spring整合Ehcache</h5><p>applicationContext-cache.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;beans</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/beans&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span style=color:#a6e22e>xmlns:context=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/context&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xmlns:cache=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/cache&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>http://www.springframework.org/schema/beans
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>http://www.springframework.org/schema/beans/spring-beans.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>http://www.springframework.org/schema/context
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>http://www.springframework.org/schema/context/spring-context.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>http://www.springframework.org/schema/cache
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>http://www.springframework.org/schema/cache/spring-cache.xsd&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 配置ehcache的对象EhCacheManager --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;ehCacheManager&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.springframework.cache.ehcache.EhCacheManagerFactoryBean&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 注入ehcache核心配置文件的位置 Default is &#34;ehcache.xml&#34; in the root of the 
+</span></span></span><span style=display:flex><span><span style=color:#75715e>            class path, or if not found, &#34;ehcache-failsafe.xml&#34; in the EhCache jar (default 
+</span></span></span><span style=display:flex><span><span style=color:#75715e>            EhCache initialization). 可以不配置，默认找类路径下的ehcache.xml --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;configLocation&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;classpath:ehcache.xml&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- Spring整合Ehache --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- Spring的平台缓存管理器 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;springCacheManager&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.springframework.cache.ehcache.EhCacheCacheManager&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 注入ehcache的对象 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;cacheManager&#34;</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;ehCacheManager&#34;</span><span style=color:#f92672>&gt;&lt;/property&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- spring的缓存注解驱动 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;cache:annotation-driven</span> <span style=color:#a6e22e>cache-manager=</span><span style=color:#e6db74>&#34;springCacheManager&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/beans&gt;</span>
+</span></span></code></pre></div><h5 id=4在需要操作缓存数据的方法上添加注解>4.在需要操作缓存数据的方法上添加注解</h5><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span>保存缓存
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Cacheable</span>(value<span style=color:#f92672>=</span><span style=color:#960050;background-color:#1e0010>”</span>cache<span style=color:#960050;background-color:#1e0010>”</span>) <span style=color:#75715e>//要缓存查询的结果到Ehchache中,参数是缓存区域</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>清除缓存
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@CacheEvict</span>(value<span style=color:#f92672>=</span><span style=color:#960050;background-color:#1e0010>”</span>cache<span style=color:#960050;background-color:#1e0010>”</span>,allEntries<span style=color:#f92672>=</span><span style=color:#66d9ef>true</span>) <span style=color:#75715e>//</span>
+</span></span></code></pre></div><h4 id=shiro整合ehcache>SHIRO整合EHCACHE</h4><h5 id=1引入ehcache配置ehcache>1.引入ehcache，配置ehcache</h5><p>ehcache.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!-- Shiro权限缓存-认证 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;cache</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;project_realm_authentication_cache&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>maxElementsInMemory=</span><span style=color:#e6db74>&#34;10000&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>eternal=</span><span style=color:#e6db74>&#34;false&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>timeToIdleSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>timeToLiveSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>maxElementsOnDisk=</span><span style=color:#e6db74>&#34;10000000&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>diskExpiryThreadIntervalSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>memoryStoreEvictionPolicy=</span><span style=color:#e6db74>&#34;LRU&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;persistence</span> <span style=color:#a6e22e>strategy=</span><span style=color:#e6db74>&#34;localTempSwap&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/cache&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>&lt;!-- Shiro权限缓存-授权 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;cache</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;project_realm_authorization_cache&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>maxElementsInMemory=</span><span style=color:#e6db74>&#34;10000&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>eternal=</span><span style=color:#e6db74>&#34;false&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>timeToIdleSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>timeToLiveSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>maxElementsOnDisk=</span><span style=color:#e6db74>&#34;10000000&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>diskExpiryThreadIntervalSeconds=</span><span style=color:#e6db74>&#34;120&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>memoryStoreEvictionPolicy=</span><span style=color:#e6db74>&#34;LRU&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;persistence</span> <span style=color:#a6e22e>strategy=</span><span style=color:#e6db74>&#34;localTempSwap&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/cache&gt;</span>
+</span></span></code></pre></div><h5 id=2shiro整合ehchache>2.shiro整合ehchache</h5><p>pom.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!-- shiro整合ehcache --&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>org.apache.shiro<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>shiro-ehcache<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>1.3.2<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span></code></pre></div><h5 id=3spring中配置ehcache缓存>3.spring中配置ehcache缓存</h5><p>applicationContext-shiro.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;beans</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/beans&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span style=color:#a6e22e>xmlns:aop=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/aop&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xmlns:context=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/context&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xmlns:jdbc=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/jdbc&#34;</span> <span style=color:#a6e22e>xmlns:tx=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/tx&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xmlns:jpa=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/data/jpa&#34;</span> <span style=color:#a6e22e>xmlns:task=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/task&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        http://www.springframework.org/schema/data/jpa 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 配置Shiro核心Filter  --&gt;</span> 
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;shiroFilter&#34;</span> 
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.apache.shiro.spring.web.ShiroFilterFactoryBean&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 安全管理器 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;securityManager&#34;</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;securityManager&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 未认证，跳转到哪个页面  --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;loginUrl&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;/login.html&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 登录页面页面 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;successUrl&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;/index.html&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 认证后，没有权限跳转页面 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;unauthorizedUrl&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;/unauthorized.html&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- shiro URL控制过滤器规则  --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;filterChainDefinitions&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;value&gt;</span>
+</span></span><span style=display:flex><span>                /login.html* = anon
+</span></span><span style=display:flex><span>                /user_login.action* = anon 
+</span></span><span style=display:flex><span>                /validatecode.jsp* = anon
+</span></span><span style=display:flex><span>                /css/** = anon
+</span></span><span style=display:flex><span>                /js/** = anon
+</span></span><span style=display:flex><span>                /images/** = anon
+</span></span><span style=display:flex><span>                /services/** = anon 
+</span></span><span style=display:flex><span>                /pages/base/courier.html* = perms[courier:list]
+</span></span><span style=display:flex><span>                /pages/base/area.html* = roles[base]
+</span></span><span style=display:flex><span>                /** = authc
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/value&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/property&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 安全管理器  --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;securityManager&#34;</span> 
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.apache.shiro.web.mgt.DefaultWebSecurityManager&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 注入自定义realm --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;realm&#34;</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;bosRealm&#34;</span><span style=color:#f92672>&gt;&lt;/property&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 开启Shiro缓存功能，需要在shiro安全管理器中注入shiro的 平台缓存管理器 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;cacheManager&#34;</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;shiroCacheManager&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 配置Shiro的bean后处理器：用来初始化Shiro的bean在spring中--&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;lifecycleBeanPostProcessor&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.apache.shiro.spring.LifecycleBeanPostProcessor&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 开启Shiro注解 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- Enable Shiro Annotations for Spring-configured beans.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    Only run after --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- the lifecycleBeanProcessor has run:
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    depends-on：当前bean初始化时，必须依赖于指定的bean，（指定的
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    bean必须先初始化）
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    下面的两个bean配置：传统的aop编程：增强、切点、切面
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>depends-on=</span><span style=color:#e6db74>&#34;lifecycleBeanPostProcessor&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 必须注入安全管理器 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;securityManager&#34;</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;securityManager&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- shiro整合echcache的缓存配置 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 配置Shiro的平台缓存管理 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;shiroCacheManager&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.apache.shiro.cache.ehcache.EhCacheManager&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 注入ehcache的对象 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;cacheManager&#34;</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;ehCacheManager&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/beans&gt;</span>
+</span></span></code></pre></div><h5 id=4在reaml对象中指定缓存权限的数据的区域>4.在reaml对象中指定缓存权限的数据的区域</h5><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.project.realms;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.authc.AuthenticationException;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.authc.AuthenticationInfo;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.authc.AuthenticationToken;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.authc.SimpleAuthenticationInfo;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.authc.UsernamePasswordToken;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.authz.AuthorizationInfo;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.authz.SimpleAuthorizationInfo;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.realm.AuthorizingRealm;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.shiro.subject.PrincipalCollection;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.beans.factory.annotation.Autowired;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.beans.factory.annotation.Value;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.stereotype.Component;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.project.dao.system.PermissionRepository;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.project.dao.system.RoleRepository;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.project.dao.system.UserRepository;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.project.domain.system.Permission;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.project.domain.system.Role;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.project.domain.system.User;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Component</span>(<span style=color:#e6db74>&#34;projectRealm&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ProjectRealm</span> <span style=color:#66d9ef>extends</span> AuthorizingRealm{
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//只需要向父类注入缓存域即可</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//认证缓存区域</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;project_realm_authentication_cache&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//方法注入按照参数注入和方法名无关</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setSuperAuthenticationCacheName</span>(String authenticationCacheName) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>super</span>.<span style=color:#a6e22e>setAuthenticationCacheName</span>(authenticationCacheName);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//授权缓存区域</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;project_realm_authorization_cache&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setSuperauthorizationCacheName</span>(String authorizationCacheName){
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>super</span>.<span style=color:#a6e22e>setAuthorizationCacheName</span>(authorizationCacheName);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Autowired</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> UserRepository userRepository;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Autowired</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> RoleRepository roleRepository;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Autowired</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> PermissionRepository permissionRepository;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//提供授权数据</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>protected</span> AuthorizationInfo <span style=color:#a6e22e>doGetAuthorizationInfo</span>(PrincipalCollection principals) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// TODO Auto-generated method stub</span>
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;授权数据提供中...&#34;</span>);
+</span></span><span style=display:flex><span>        SimpleAuthorizationInfo authorizationInfo <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> SimpleAuthorizationInfo();
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//写死安全数据</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//添加功能权限：底层是set集合</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//authorizationInfo.addStringPermission(&#34;courier:list&#34;);</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//添加角色权限</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//authorizationInfo.addRole(&#34;base&#34;);</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//2.根据登录用户动态获取授权数据 </span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//方法一</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//User user = (User)SecurityUtils.getSubject().getPrincipal();</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//方法二</span>
+</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> (User)principals.<span style=color:#a6e22e>getPrimaryPrincipal</span>();
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//判断是否是管理员</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#e6db74>&#34;admin&#34;</span>.<span style=color:#a6e22e>equals</span>(user.<span style=color:#a6e22e>getUsername</span>())) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (Role role :roleRepository.<span style=color:#a6e22e>findAll</span>()) {
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//添加角色</span>
+</span></span><span style=display:flex><span>                authorizationInfo.<span style=color:#a6e22e>addRole</span>(role.<span style=color:#a6e22e>getKeyword</span>());
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (Permission permission : permissionRepository.<span style=color:#a6e22e>findAll</span>()) {
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//添加功能权限</span>
+</span></span><span style=display:flex><span>                authorizationInfo.<span style=color:#a6e22e>addStringPermission</span>(permission.<span style=color:#a6e22e>getKeyword</span>());
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//不是管理员</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> (Role role : roleRepository.<span style=color:#a6e22e>findByUsers</span>(user)) {
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//添加角色</span>
+</span></span><span style=display:flex><span>                authorizationInfo.<span style=color:#a6e22e>addRole</span>(role.<span style=color:#a6e22e>getKeyword</span>());
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//添加角色具有的权限</span>
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>for</span> (Permission permission : role.<span style=color:#a6e22e>getPermissions</span>()) { <span style=color:#75715e>//此处涉及持久态问题，只有持久态后才可以查询 </span>
+</span></span><span style=display:flex><span>                    authorizationInfo.<span style=color:#a6e22e>addStringPermission</span>(permission.<span style=color:#a6e22e>getKeyword</span>());
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> authorizationInfo;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//提供认证数据</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>protected</span> AuthenticationInfo <span style=color:#a6e22e>doGetAuthenticationInfo</span>(AuthenticationToken token) <span style=color:#66d9ef>throws</span> AuthenticationException {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 目标：根据用户名查询用户对象，封装成认证信息对象，返回交给安全管理器</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//用户名</span>
+</span></span><span style=display:flex><span>        String username <span style=color:#f92672>=</span> ((UsernamePasswordToken)token).<span style=color:#a6e22e>getUsername</span>();
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//查询数据库：根据用户查询 对象</span>
+</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> userRepository.<span style=color:#a6e22e>findByUsername</span>(username);
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//判断</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>null</span> <span style=color:#f92672>==</span> user) {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//如果返回null，安全管理器认为用户名不存在</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>null</span>;
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//用户名存在，将用户信息封装到认证信息对象中，交给安全管理器</span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e>             * @param1 principal 负责人，就是用户对象，以后会保存到session中
+</span></span></span><span style=display:flex><span><span style=color:#75715e>             * @param2 credential 凭证，这里就是真实的密码
+</span></span></span><span style=display:flex><span><span style=color:#75715e>             * @param3 realm的对象的一个唯一的名字，类似uuid，底层就是一个随机数
+</span></span></span><span style=display:flex><span><span style=color:#75715e>             */</span>
+</span></span><span style=display:flex><span>            SimpleAuthenticationInfo authenticationInfo <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> SimpleAuthenticationInfo(user, user.<span style=color:#a6e22e>getPassword</span>(), <span style=color:#66d9ef>super</span>.<span style=color:#a6e22e>getName</span>());
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> authenticationInfo;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></article></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>

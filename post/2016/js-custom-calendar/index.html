@@ -1,0 +1,334 @@
+<!doctype html><html lang=en-us><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=https://cloudflare-ipfs.com/ipfs/bafybeifgyesyxxtia5lxe7exyfkhb6dcbopd6rgenhu3eih4n4epqrxiy4></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=About>About</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=Posts>Posts</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=Categories>Categories</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me@gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Ajax自定义日历</h3><small class=text-muted>Published September 27, 2016</small></div><article><h2 id=需求分析>需求分析</h2><p>在一些购物网站中，都会有促销活动，这些活动都在日历上标注出来，如何通过Ajax让日历</p><p>通过读取数据库中的信息，正确的把促销活动标注在日历上，本文通过自定义日历来实现这个问题。</p><h2 id=技术难点>技术难点</h2><ul><li><p>日历的布局</p></li><li><p>日历的初始化</p></li><li><p>日历的动态变化</p></li><li><p>日历的促销定制</p></li></ul><h2 id=实现方法>实现方法</h2><p>1、 先创建一个固定的日历，效果如下</p><p><img src=https://xueyao.oss-cn-hangzhou.aliyuncs.com/2016/201160927_232635.png alt=自定义日历初始效果图></p><p>html代码如下</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-html data-lang=html><span style=display:flex><span><span style=color:#75715e>&lt;!DOCTYPE html&gt;</span>
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>html</span> <span style=color:#a6e22e>lang</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;en&#34;</span>&gt;
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>head</span>&gt;
+</span></span><span style=display:flex><span>    &lt;<span style=color:#f92672>meta</span> <span style=color:#a6e22e>charset</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;UTF-8&#34;</span>&gt;
+</span></span><span style=display:flex><span>    &lt;<span style=color:#f92672>title</span>&gt;Title&lt;/<span style=color:#f92672>title</span>&gt;
+</span></span><span style=display:flex><span>    &lt;<span style=color:#f92672>style</span> <span style=color:#a6e22e>type</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;text/css&#34;</span>&gt;
+</span></span><span style=display:flex><span>        <span style=color:#f92672>*</span> {<span style=color:#66d9ef>margin</span>: <span style=color:#ae81ff>0</span>; <span style=color:#66d9ef>padding</span>: <span style=color:#ae81ff>0</span>;}
+</span></span><span style=display:flex><span>        <span style=color:#f92672>body</span> {<span style=color:#66d9ef>font-size</span>: <span style=color:#ae81ff>13</span><span style=color:#66d9ef>px</span>;}
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>calendar</span> {<span style=color:#66d9ef>width</span>: <span style=color:#ae81ff>330</span><span style=color:#66d9ef>px</span>; <span style=color:#66d9ef>margin</span>: <span style=color:#ae81ff>0</span> <span style=color:#66d9ef>auto</span>;}
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>calendar</span> .<span style=color:#a6e22e>title</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>position</span>: <span style=color:#66d9ef>relative</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>width</span>: <span style=color:#ae81ff>100</span><span style=color:#66d9ef>%</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>height</span>: <span style=color:#ae81ff>30</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>line-height</span>: <span style=color:#ae81ff>30</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>background</span>: <span style=color:#ae81ff>#17a4eb</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>title</span> <span style=color:#f92672>div</span> {<span style=color:#66d9ef>position</span>: <span style=color:#66d9ef>absolute</span>;}
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>prev</span> {<span style=color:#66d9ef>left</span>: <span style=color:#ae81ff>10</span><span style=color:#66d9ef>px</span>; }
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>now</span> {<span style=color:#66d9ef>left</span>: <span style=color:#ae81ff>40</span><span style=color:#66d9ef>%</span>;}
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>next</span> {<span style=color:#66d9ef>right</span>: <span style=color:#ae81ff>10</span><span style=color:#66d9ef>px</span>;}
+</span></span><span style=display:flex><span>        <span style=color:#f92672>input</span> {<span style=color:#66d9ef>height</span>: <span style=color:#ae81ff>30</span><span style=color:#66d9ef>px</span>; <span style=color:#66d9ef>width</span>: <span style=color:#ae81ff>300</span><span style=color:#66d9ef>px</span>; <span style=color:#66d9ef>margin</span>: <span style=color:#ae81ff>100</span><span style=color:#66d9ef>px</span> <span style=color:#ae81ff>475</span><span style=color:#66d9ef>px</span> <span style=color:#ae81ff>0</span><span style=color:#66d9ef>px</span>;}
+</span></span><span style=display:flex><span>        <span style=color:#f92672>table</span> {<span style=color:#66d9ef>width</span>: <span style=color:#ae81ff>100</span><span style=color:#66d9ef>%</span>; <span style=color:#66d9ef>border-collapse</span>: <span style=color:#66d9ef>collapse</span>;}
+</span></span><span style=display:flex><span>        <span style=color:#f92672>table</span> <span style=color:#f92672>th</span> {<span style=color:#66d9ef>border</span>: <span style=color:#ae81ff>1</span><span style=color:#66d9ef>px</span> <span style=color:#66d9ef>solid</span> <span style=color:#ae81ff>#ccc</span>;}
+</span></span><span style=display:flex><span>        <span style=color:#f92672>table</span> <span style=color:#f92672>td</span> {<span style=color:#66d9ef>text-align</span>: <span style=color:#66d9ef>center</span>; <span style=color:#66d9ef>border</span>: <span style=color:#ae81ff>1</span><span style=color:#66d9ef>px</span> <span style=color:#66d9ef>solid</span> <span style=color:#ae81ff>#ccc</span>;}
+</span></span><span style=display:flex><span>    &lt;/<span style=color:#f92672>style</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>head</span>&gt;
+</span></span><span style=display:flex><span>&lt;<span style=color:#f92672>body</span>&gt;
+</span></span><span style=display:flex><span>    &lt;<span style=color:#f92672>input</span> <span style=color:#a6e22e>type</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;text&#34;</span>&gt;
+</span></span><span style=display:flex><span>    &lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>class</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;calendar&#34;</span>&gt;
+</span></span><span style=display:flex><span>        &lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>class</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;title&#34;</span>&gt;
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>class</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;prev&#34;</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>span</span>&gt;08&lt;/<span style=color:#f92672>span</span>&gt;月
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>class</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;now&#34;</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>span</span>&gt;2016&lt;/<span style=color:#f92672>span</span>&gt;年
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>span</span>&gt;09&lt;/<span style=color:#f92672>span</span>&gt;月
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>class</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;next&#34;</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>span</span>&gt;10&lt;/<span style=color:#f92672>span</span>&gt;月
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>        &lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>        &lt;<span style=color:#f92672>table</span>&gt;
+</span></span><span style=display:flex><span>            <span style=color:#75715e>&lt;!--星期部分--&gt;</span>
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>thead</span>&gt;
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>tr</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>th</span>&gt;日&lt;/<span style=color:#f92672>th</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>th</span>&gt;一&lt;/<span style=color:#f92672>th</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>th</span>&gt;二&lt;/<span style=color:#f92672>th</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>th</span>&gt;三&lt;/<span style=color:#f92672>th</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>th</span>&gt;四&lt;/<span style=color:#f92672>th</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>th</span>&gt;五&lt;/<span style=color:#f92672>th</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>th</span>&gt;六&lt;/<span style=color:#f92672>th</span>&gt;
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>tr</span>&gt;
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>thead</span>&gt;
+</span></span><span style=display:flex><span>            <span style=color:#75715e>&lt;!--日期部分--&gt;</span>
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>tbody</span>&gt;
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>tr</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>tr</span>&gt;
+</span></span><span style=display:flex><span>            &lt;<span style=color:#f92672>tr</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>                &lt;<span style=color:#f92672>td</span>&gt;1&lt;/<span style=color:#f92672>td</span>&gt;
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>tr</span>&gt;
+</span></span><span style=display:flex><span>            &lt;/<span style=color:#f92672>tbody</span>&gt;
+</span></span><span style=display:flex><span>        &lt;/<span style=color:#f92672>table</span>&gt;
+</span></span><span style=display:flex><span>    &lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>body</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>html</span>&gt;
+</span></span></code></pre></div><p>当创建固定日历后，把日历的html部分注释掉(title和table)，保留css部分</p><p>2、 通过javascript动态生成日历</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span>window.<span style=color:#a6e22e>onload</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span> () {
+</span></span><span style=display:flex><span>       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oInput</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>getElementsByTagName</span>(<span style=color:#e6db74>&#39;input&#39;</span>)[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oCalendar</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>getElementById</span>(<span style=color:#e6db74>&#39;calendar&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#75715e>//           console.log(oCalendar);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oDate</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Date();
+</span></span><span style=display:flex><span>       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>year</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>oDate</span>.<span style=color:#a6e22e>getFullYear</span>();
+</span></span><span style=display:flex><span>       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>oDate</span>.<span style=color:#a6e22e>getMonth</span>()<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>       <span style=color:#75715e>//日期td
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oTds</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>getElementsByTagName</span>(<span style=color:#e6db74>&#39;td&#39;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>flag</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>       <span style=color:#a6e22e>oInput</span>.<span style=color:#a6e22e>onfocus</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span> () {
+</span></span><span style=display:flex><span>           <span style=color:#a6e22e>showDate</span>(<span style=color:#a6e22e>year</span>,<span style=color:#a6e22e>month</span>);
+</span></span><span style=display:flex><span>       }
+</span></span><span style=display:flex><span>       <span style=color:#75715e>//显示日历
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>showDate</span>(<span style=color:#a6e22e>year</span>,<span style=color:#a6e22e>month</span>) {
+</span></span><span style=display:flex><span>           <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>false</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>flag</span>) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oTitle</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;div&#39;</span>);
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oTitle</span>.<span style=color:#a6e22e>className</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;title&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oTitle</span>.<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&lt;div class=&#34;prev&#34;&gt; &lt;span&gt;&#39;</span><span style=color:#f92672>+</span>(<span style=color:#a6e22e>month</span><span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>)<span style=color:#f92672>+</span><span style=color:#e6db74>&#39;&lt;/span&gt;月 &lt;/div&gt; &#39;</span> <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>                       <span style=color:#e6db74>&#39;&lt;div class=&#34;now&#34;&gt; &lt;span&gt;&#39;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>year</span><span style=color:#f92672>+</span><span style=color:#e6db74>&#39;&lt;/span&gt;年 &lt;span&gt;&#39;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>month</span><span style=color:#f92672>+</span><span style=color:#e6db74>&#39;&lt;/span&gt;月 &lt;/div&gt; &#39;</span> <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>                       <span style=color:#e6db74>&#39;&lt;div class=&#34;next&#34;&gt; &lt;span&gt;&#39;</span><span style=color:#f92672>+</span>(<span style=color:#a6e22e>month</span><span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>)<span style=color:#f92672>+</span><span style=color:#e6db74>&#39;&lt;/span&gt;月 &lt;/div&gt;&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>oTitle</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//月份span
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>ospans</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>getElementsByTagName</span>(<span style=color:#e6db74>&#39;span&#39;</span>);
+</span></span><span style=display:flex><span>              <span style=color:#75715e>// console.log(ospans);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>prevMonth</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>ospans</span>[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>nextMonth</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>ospans</span>[<span style=color:#ae81ff>3</span>];
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>nowMonth</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>ospans</span>[<span style=color:#ae81ff>2</span>];
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>nowYear</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>ospans</span>[<span style=color:#ae81ff>1</span>];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//创建星期
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>otable</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;table&#39;</span>);
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>othead</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;thead&#39;</span>);
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>otr</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;tr&#39;</span>);
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>arr</span> <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#39;日&#39;</span>,<span style=color:#e6db74>&#39;一&#39;</span>,<span style=color:#e6db74>&#39;二&#39;</span>,<span style=color:#e6db74>&#39;三&#39;</span>,<span style=color:#e6db74>&#39;四&#39;</span>,<span style=color:#e6db74>&#39;五&#39;</span>,<span style=color:#e6db74>&#39;六&#39;</span>];
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>arr</span>.<span style=color:#a6e22e>length</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#75715e>//创建th
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oth</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;th&#39;</span>);
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>oth</span>.<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>arr</span>[<span style=color:#a6e22e>i</span>];
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>otr</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>oth</span>);
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>othead</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>otr</span>);
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>otable</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>othead</span>);
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>otable</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//先获得当前月有多少天
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>3</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>5</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>7</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>8</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>10</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>12</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>dayNum</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>31</span>;
+</span></span><span style=display:flex><span>               } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>4</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>6</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>9</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>||</span> <span style=color:#ae81ff>11</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>dayNum</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>30</span>;
+</span></span><span style=display:flex><span>               } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>2</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>isLeapYear</span>(<span style=color:#a6e22e>year</span>)) {
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>dayNum</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>29</span>;
+</span></span><span style=display:flex><span>               } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>dayNum</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>28</span>;
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//确定当前月的1号是星期几
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#a6e22e>oDate</span>.<span style=color:#a6e22e>setFullYear</span>(<span style=color:#a6e22e>year</span>);
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oDate</span>.<span style=color:#a6e22e>setMonth</span>(<span style=color:#a6e22e>month</span><span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oDate</span>.<span style=color:#a6e22e>setDate</span>(<span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//日期
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>otbody</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;tbody&#39;</span>);
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#ae81ff>6</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oTr</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;tr&#39;</span>);
+</span></span><span style=display:flex><span>                   <span style=color:#75715e>//每行里面有7列
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                   <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>j</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>j</span><span style=color:#f92672>&lt;</span><span style=color:#ae81ff>7</span>; <span style=color:#a6e22e>j</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                       <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oTd</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;td&#39;</span>);
+</span></span><span style=display:flex><span>                       <span style=color:#75715e>//oTd.innerHTML = 1;
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                       <span style=color:#a6e22e>oTr</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>oTd</span>);
+</span></span><span style=display:flex><span>                   }
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>otbody</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>oTr</span>);
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>otable</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>otbody</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//获得今天1号对应的是星期几
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>week</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>oDate</span>.<span style=color:#a6e22e>getDay</span>();
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oTds</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>getElementsByTagName</span>(<span style=color:#e6db74>&#39;td&#39;</span>);
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//alert(week);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>dayNum</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>i</span><span style=color:#f92672>+</span><span style=color:#a6e22e>week</span>].<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//如果当前月month 是12或者1
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>prevMonth</span>.<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>12</span>;
+</span></span><span style=display:flex><span>               } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>12</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>month</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>nextMonth</span>.<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//让当前日期显示红色、后面的显示蓝色
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#a6e22e>showColor</span>();
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//给左右月份绑定点击事件
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>monthEvent</span>();
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//给所有的td绑定点击事件
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#a6e22e>tdClick</span>();
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//判断最后一行是否全为空
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#a6e22e>lastTr</span>();
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//获得促销信息
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#a6e22e>getPromotion</span>();
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>flag</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>       }
+</span></span><span style=display:flex><span>       <span style=color:#75715e>//最后一行如果全部为空就将其隐藏
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>lastTr</span>() {
+</span></span><span style=display:flex><span>           <span style=color:#75715e>//查找最后一行的所有td
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>flag</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>           <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>35</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#ae81ff>42</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>!=</span> <span style=color:#e6db74>&#39;&#39;</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#75715e>//有任何一个td不为空就设置为false
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                   <span style=color:#a6e22e>flag</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>           <span style=color:#75715e>//全部是空的
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>flag</span>) {
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>35</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#ae81ff>42</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>style</span>.<span style=color:#a6e22e>display</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;none&#39;</span>;
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>       }
+</span></span><span style=display:flex><span>       <span style=color:#75715e>//给所有的td绑定点击事件
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>tdClick</span>() {
+</span></span><span style=display:flex><span>           <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>oTds</span>.<span style=color:#a6e22e>length</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>onclick</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span>() {
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>if</span> (<span style=color:#e6db74>&#39;red&#39;</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>className</span> <span style=color:#f92672>||</span><span style=color:#e6db74>&#39;blue&#39;</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>className</span>) {
+</span></span><span style=display:flex><span>                        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>year</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>nowYear</span>.<span style=color:#a6e22e>innerHTML</span>;
+</span></span><span style=display:flex><span>                        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>month</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>nowMonth</span>.<span style=color:#a6e22e>innerHTML</span>;
+</span></span><span style=display:flex><span>                        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>date</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>innerHTML</span>;
+</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>oInput</span>.<span style=color:#a6e22e>value</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>year</span> <span style=color:#f92672>+</span><span style=color:#e6db74>&#39;-&#39;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>month</span><span style=color:#f92672>+</span><span style=color:#e6db74>&#39;-&#39;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>date</span>;
+</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>flag</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>                    } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>alert</span>(<span style=color:#e6db74>&#39;您只能选择红色或蓝色区域&#39;</span>);
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>       }
+</span></span><span style=display:flex><span>       <span style=color:#75715e>//当前日期显示红色、后面的显示蓝色
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>showColor</span>() {
+</span></span><span style=display:flex><span>           <span style=color:#75715e>//当前的日期
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oday</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Date().<span style=color:#a6e22e>getDate</span>();
+</span></span><span style=display:flex><span>           <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>oTds</span>.<span style=color:#a6e22e>length</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>oday</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>innerHTML</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>className</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;red&#39;</span>;
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oindex</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>i</span>;
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>           <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>j</span><span style=color:#f92672>=</span><span style=color:#a6e22e>oindex</span><span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>; <span style=color:#a6e22e>j</span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>oTds</span>.<span style=color:#a6e22e>length</span>; <span style=color:#a6e22e>j</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>j</span>].<span style=color:#a6e22e>className</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;blue&#39;</span>;
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>       }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>       <span style=color:#75715e>//给左右月份绑定点击事件
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>monthEvent</span>() {
+</span></span><span style=display:flex><span>           <span style=color:#75715e>//向左的月份div
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#a6e22e>prevMonth</span>.<span style=color:#a6e22e>parentNode</span>.<span style=color:#a6e22e>onclick</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span> () {
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//alert(&#39;向左&#39;);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#a6e22e>flag</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>12</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>prevMonth</span>.<span style=color:#a6e22e>innerHTML</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>showDate</span>(<span style=color:#a6e22e>year</span> <span style=color:#f92672>-=</span> <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>12</span>);
+</span></span><span style=display:flex><span>               } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>showDate</span>(<span style=color:#a6e22e>year</span>,parseInt(<span style=color:#a6e22e>prevMonth</span>.<span style=color:#a6e22e>innerHTML</span>));
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>           <span style=color:#75715e>//向左的月份div
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#a6e22e>nextMonth</span>.<span style=color:#a6e22e>parentNode</span>.<span style=color:#a6e22e>onclick</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span> () {
+</span></span><span style=display:flex><span>               <span style=color:#75715e>//alert(&#39;向右&#39;);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>               <span style=color:#a6e22e>flag</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>               <span style=color:#a6e22e>oCalendar</span>.<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;</span>;
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>nextMonth</span>.<span style=color:#a6e22e>innerHTML</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>showDate</span>(<span style=color:#a6e22e>year</span><span style=color:#f92672>+=</span><span style=color:#ae81ff>1</span>,<span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>               } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>                   <span style=color:#a6e22e>showDate</span>(<span style=color:#a6e22e>year</span>,parseInt(<span style=color:#a6e22e>nextMonth</span>.<span style=color:#a6e22e>innerHTML</span>));
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>       }
+</span></span><span style=display:flex><span>       <span style=color:#75715e>//判断是否是闰年
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>       <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>isLeapYear</span>(<span style=color:#a6e22e>year</span>) {
+</span></span><span style=display:flex><span>           <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>year</span><span style=color:#f92672>%</span><span style=color:#ae81ff>100</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>year</span><span style=color:#f92672>%</span><span style=color:#ae81ff>400</span>) {
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>           }<span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>year</span><span style=color:#f92672>%</span><span style=color:#ae81ff>100</span> <span style=color:#f92672>!=</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>year</span><span style=color:#f92672>%</span><span style=color:#ae81ff>4</span> <span style=color:#f92672>==</span><span style=color:#ae81ff>0</span>) {
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>           } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>       }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>3、 从服务器获取促销的信息并在日历中显示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span><span style=color:#75715e>//从服务器获取促销信息
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>  <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>getPromotion</span>() {
+</span></span><span style=display:flex><span>       <span style=color:#a6e22e>$</span>.<span style=color:#a6e22e>request</span>({
+</span></span><span style=display:flex><span>          <span style=color:#a6e22e>method</span><span style=color:#f92672>:</span><span style=color:#e6db74>&#34;post&#34;</span>, <span style=color:#75715e>//获取方式
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#a6e22e>url</span><span style=color:#f92672>:</span><span style=color:#e6db74>&#34;promotion.php&#34;</span>, <span style=color:#75715e>//从哪个文件中获取
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#a6e22e>data</span><span style=color:#f92672>:</span><span style=color:#e6db74>&#34;&#34;</span>,  <span style=color:#75715e>//是否传递数据
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>           <span style=color:#a6e22e>callback</span><span style=color:#f92672>:</span><span style=color:#66d9ef>function</span> (<span style=color:#a6e22e>res</span>) {
+</span></span><span style=display:flex><span>               eval(<span style=color:#e6db74>&#34;var obj=&#34;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>res</span>);
+</span></span><span style=display:flex><span>               <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>status</span>) {
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>dates</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>dates</span>;
+</span></span><span style=display:flex><span>                   <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>i</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>dates</span>.<span style=color:#a6e22e>length</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                       <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>j</span><span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>j</span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>oTds</span>.<span style=color:#a6e22e>length</span>; <span style=color:#a6e22e>j</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>                           <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>j</span>].<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>dates</span>[<span style=color:#a6e22e>i</span>]) {
+</span></span><span style=display:flex><span>                               <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>j</span>].<span style=color:#a6e22e>innerHTML</span> <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#34;促销&#34;</span>;
+</span></span><span style=display:flex><span>                               <span style=color:#a6e22e>oTds</span>[<span style=color:#a6e22e>j</span>].<span style=color:#a6e22e>style</span>.<span style=color:#a6e22e>background</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;red&#39;</span>;
+</span></span><span style=display:flex><span>                           }
+</span></span><span style=display:flex><span>                       }
+</span></span><span style=display:flex><span>                   }
+</span></span><span style=display:flex><span>               }
+</span></span><span style=display:flex><span>           }
+</span></span><span style=display:flex><span>       });
+</span></span><span style=display:flex><span>  }
+</span></span></code></pre></div><p>$.request()是封装在js里的Ajax方法,代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>$</span> <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>request</span><span style=color:#f92672>:</span><span style=color:#66d9ef>function</span>(<span style=color:#a6e22e>obj</span>){
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>xhr</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>try</span> {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//主流浏览器里面的ajax对象
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#a6e22e>xhr</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>XMLHttpRequest</span>();
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>catch</span>(<span style=color:#a6e22e>e</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//IE低版本的浏览器
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#a6e22e>xhr</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>ActiveXObject</span>(<span style=color:#e6db74>&#34;Microsoft.XMLHTTP&#34;</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//建立和服务器的连接
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>method</span> <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;get&#39;</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>open</span>(<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>method</span>,<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>url</span><span style=color:#f92672>+</span><span style=color:#e6db74>&#39;?&#39;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>data</span><span style=color:#f92672>+</span><span style=color:#e6db74>&#39;&amp;&#39;</span><span style=color:#f92672>+</span>Math.<span style=color:#a6e22e>random</span>(),<span style=color:#66d9ef>true</span>);
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>send</span>();
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>method</span> <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;post&#39;</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>open</span>(<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>method</span>,<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>url</span>,<span style=color:#66d9ef>true</span>);
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>setRequestHeader</span>(<span style=color:#e6db74>&#34;Content-Type&#34;</span>,<span style=color:#e6db74>&#34;application/x-www-form-urlencoded&#34;</span>);
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>send</span>(<span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>data</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//监视服务器的处理状态
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>onreadystatechange</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span>(){
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (<span style=color:#ae81ff>4</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>readyState</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#ae81ff>200</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>status</span>) {
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//说明请求成功了，输出服务器返回的数据
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>obj</span>.<span style=color:#a6e22e>callback</span>(<span style=color:#a6e22e>xhr</span>.<span style=color:#a6e22e>responseText</span>);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>promotion.php</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span>    $data[<span style=color:#e6db74>&#39;status&#39;</span>] <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//促销时间
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    $data[<span style=color:#e6db74>&#39;dates&#39;</span>] <span style=color:#f92672>=</span> <span style=color:#66d9ef>array</span>(<span style=color:#ae81ff>28</span>,<span style=color:#ae81ff>29</span>,<span style=color:#ae81ff>30</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>echo</span> <span style=color:#a6e22e>json_encode</span>($data);
+</span></span></code></pre></div><p>最终效果图如下，样式不是很美观</p><p><img src=https://xueyao.oss-cn-hangzhou.aliyuncs.com/2016/20160927_232715.png alt=自定义日历最终效果图></p><p><a href=https://github.com/flowstone/2016-Code/tree/master/day075AJax>代码托管于GitHub</a></p></article></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>

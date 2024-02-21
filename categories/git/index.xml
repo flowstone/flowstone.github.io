@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Git on 薛尧的博客</title><link>http://flowstone.github.io/categories/git/</link><description>Recent content in Git on 薛尧的博客</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>&amp;copy; Copyright 2024</copyright><lastBuildDate>Fri, 03 Feb 2017 11:26:31 +0000</lastBuildDate><atom:link href="http://flowstone.github.io/categories/git/index.xml" rel="self" type="application/rss+xml"/><item><title>GitHub Pages二级域名的配置</title><link>http://flowstone.github.io/post/2017/github-page-config-sub-domain/</link><pubDate>Fri, 03 Feb 2017 11:26:31 +0000</pubDate><guid>http://flowstone.github.io/post/2017/github-page-config-sub-domain/</guid><description>域名配置指南 首先创建一个新的仓库，并在设置中设置GitHub Pages的Source从master主分支上构建，点击保存，如下图所示:
+并在Custom domain 里填写自定义的二级域名，如下图所示:
+在你的域名注册商那里设置域名的DNS,类型CNAME,具体配置如下:
+把写好的代码同步到创建的仓库中，通过浏览器访问二级域名，效果如下：
+注意此二级域名的一级域名必须解析到自己flowstone.github.io下，如下图所示：</description></item><item><title>Git入门</title><link>http://flowstone.github.io/post/2016/git-guide/</link><pubDate>Mon, 18 Jul 2016 22:08:00 +0000</pubDate><guid>http://flowstone.github.io/post/2016/git-guide/</guid><description>安装 下载git OSX版 下载git Windows版 下载git Linux版 创建新仓库 创建新文件夹，打开，然后执行
+git init 以创建新的git仓库
+克隆仓库 创建一个本地仓库的克隆版本：
+git clone /path/to/repository 如果要克隆服务器上的仓库，你的命令会是这个样子：
+git clone username@host:/path/to/repository 添加与提交 git add &amp;#34;filename&amp;#34;git add * git add . 这是git基本工作流程的第一步;使用如下命令以实际提交改动：
+git commit -m &amp;#39;代码提交信息&amp;#39; 推送仓库 改动提交到远端仓库：
+git push origin master 可以把master 换成你想要推送的任何分支。
+如果你还没有克隆现有仓库，并欲将你的仓库连接到某个远程服务器，你可以使用如下命令添加：
+git remote add origin &amp;lt;server&amp;gt; 更新与合并 要更新你的本地仓库至最新改动，执行：
+git pull 以在你的工作目录中 获取（fetch） 并 合并（merge） 远端的改动。
+要合并其他分支到你的当前分支（例如 master），执行：
+git merge &amp;lt;branch&amp;gt; 两种情况下，git 都会尝试去自动合并改动。不幸的是，自动合并并非次次都能成功，并可能导致 冲突（conflicts）。 这时候就需要你修改这些文件来合并这些冲突（conflicts）了。改完之后，你需要执行如下命令以将它们标记为合并成功：
+git add &amp;lt;filename&amp;gt; 在合并改动之前，也可以使用如下命令查看：</description></item></channel></rss>

@@ -1,0 +1,90 @@
+<!doctype html><html lang=en-us><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=https://cloudflare-ipfs.com/ipfs/bafybeifgyesyxxtia5lxe7exyfkhb6dcbopd6rgenhu3eih4n4epqrxiy4></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=About>About</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=Posts>Posts</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=Categories>Categories</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me@gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>如何使用FTP中的模板文件和EasyPOI来导出Excle?</h3><small class=text-muted>Published July 25, 2021</small></div><article><h2 id=问题描述>问题描述</h2><p>因工作需要导出Excel文件，使用技术为EasyPOI,EasyPOI是一个非常好的导出文件工具，官网提供非常详细的使用文档，在项目中使用EasyPOI的模板导出功能，官方提供的示例代码中，模板的路径都是本地，我使用时也是把Excle模板文件放在本地，因为之前需要导出的地方，不是很多，模板文件放在本地也没有太大问题，但是由于现在需求变更，会有大量的模板需要导出，如果放在本地会造成项目容量变大。现在想把导出的模板保存在远程的FTP服务中，EasyPOI读取FTP的中模板文件生成Excle文件。</p><h2 id=解决步骤>解决步骤</h2><p>1、 查找解决方式
+上网找了许多相关资料，官网上也没有找到解决方法，意外浏览了一篇文章，文章中提到了一句话，说EasyPOI读取模板文件，只支持读取本地模板文件，换句话来说，我只需要把FTP中的模板文件下载到本地指定路径，然后，就可以读取模板文件。</p><p>2、创建测试项目
+创建一个SpringBoot项目，POM文件中引入需要的Jar包，如下</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>cn.hutool<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>hutool-all<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>5.7.5<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>cn.afterturn<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>easypoi-spring-boot-starter<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>4.3.0<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>commons-net<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>commons-net<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>3.6<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p>3、添加一些配置文件</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span><span style=color:#f92672>ftp</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>host</span>: <span style=color:#ae81ff>192.168.2.66</span>  <span style=color:#75715e># IP</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>port</span>: <span style=color:#ae81ff>21</span>  <span style=color:#75715e># 端口</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>username</span>: <span style=color:#ae81ff>root</span> <span style=color:#75715e># 用户名</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>password</span>: <span style=color:#ae81ff>123456</span> <span style=color:#75715e># 密码</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>mode</span>: <span style=color:#ae81ff>Passive</span> <span style=color:#75715e># ftp模式</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>remotePath</span>: <span style=color:#ae81ff>/root/export/</span> <span style=color:#75715e># ftp模板路径</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>localPath</span>: <span style=color:#ae81ff>/Users/simonxue/Developer/Temp/</span> <span style=color:#75715e># 本地模板路径</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>template</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>employee</span>: <span style=color:#ae81ff>employee.xlsx</span> <span style=color:#75715e>#模板文件</span>
+</span></span></code></pre></div><p>3、 创建一个FTP下载方法，方法返回地址模板全路径名，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;${ftp.host}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> String host;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;${ftp.port}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> Integer port;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;${ftp.username}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> String username;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;${ftp.password}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> String password;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;${ftp.mode}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> String mode;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;${ftp.remotePath}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> String remotePath;
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Value</span>(<span style=color:#e6db74>&#34;${ftp.localPath}&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span> String localPath;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    * 拷贝FTP中的文件到本地
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    * @param fileName  ftp中的文件名
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    * @return
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    */</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@SneakyThrows</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>localPathName</span>(String fileName) {
+</span></span><span style=display:flex><span>    Ftp ftp <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Ftp(host, port, username, password, Charset.<span style=color:#a6e22e>defaultCharset</span>());
+</span></span><span style=display:flex><span>    ftp.<span style=color:#a6e22e>setMode</span>(FtpMode.<span style=color:#a6e22e>Passive</span>.<span style=color:#a6e22e>name</span>().<span style=color:#a6e22e>equals</span>(mode)<span style=color:#f92672>?</span> FtpMode.<span style=color:#a6e22e>Passive</span>: FtpMode.<span style=color:#a6e22e>Active</span>);
+</span></span><span style=display:flex><span>    String localName <span style=color:#f92672>=</span> localPath <span style=color:#f92672>+</span> fileName;
+</span></span><span style=display:flex><span>    ftp.<span style=color:#a6e22e>download</span>(remotePath, fileName, FileUtil.<span style=color:#a6e22e>file</span>(localName));
+</span></span><span style=display:flex><span>    ftp.<span style=color:#a6e22e>close</span>();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> localName;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>4、需要根据模板导出的地方，使用上面的方法,如下</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@SneakyThrows</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>templateTest</span>(HttpServletResponse response) {
+</span></span><span style=display:flex><span>    String localPathName <span style=color:#f92672>=</span> ftpUtil.<span style=color:#a6e22e>localPathName</span>(employeeTemplateName);
+</span></span><span style=display:flex><span>    response.<span style=color:#a6e22e>setCharacterEncoding</span>(<span style=color:#e6db74>&#34;utf-8&#34;</span>);
+</span></span><span style=display:flex><span>    response.<span style=color:#a6e22e>setContentType</span>(<span style=color:#e6db74>&#34;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&#34;</span>);
+</span></span><span style=display:flex><span>    response.<span style=color:#a6e22e>setHeader</span>(<span style=color:#e6db74>&#34;Content-Disposition&#34;</span>, <span style=color:#e6db74>&#34;attachment;filename=&#34;</span><span style=color:#f92672>+</span> IdUtil.<span style=color:#a6e22e>getSnowflake</span>(0,0).<span style=color:#a6e22e>nextIdStr</span>()<span style=color:#f92672>+</span><span style=color:#e6db74>&#34;.xlsx&#34;</span>);
+</span></span><span style=display:flex><span>    Map<span style=color:#f92672>&lt;</span>String, Object<span style=color:#f92672>&gt;</span> resultMap <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> HashMap<span style=color:#f92672>&lt;&gt;</span>();
+</span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>Employee<span style=color:#f92672>&gt;</span> employeeList <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ArrayList<span style=color:#f92672>&lt;&gt;</span>();
+</span></span><span style=display:flex><span>    Employee employee <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Employee();
+</span></span><span style=display:flex><span>    employee.<span style=color:#a6e22e>setJobNumber</span>(<span style=color:#e6db74>&#34;0001&#34;</span>);
+</span></span><span style=display:flex><span>    employee.<span style=color:#a6e22e>setUsername</span>(<span style=color:#e6db74>&#34;小码农薛尧&#34;</span>);
+</span></span><span style=display:flex><span>    employee.<span style=color:#a6e22e>setPhone</span>(<span style=color:#e6db74>&#34;1234567901&#34;</span>);
+</span></span><span style=display:flex><span>    employee.<span style=color:#a6e22e>setEmail</span>(<span style=color:#e6db74>&#34;xueyao.me@gmail.com&#34;</span>);
+</span></span><span style=display:flex><span>    employeeList.<span style=color:#a6e22e>add</span>(employee);
+</span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>Map<span style=color:#f92672>&lt;</span>String, Object<span style=color:#f92672>&gt;&gt;</span> maps <span style=color:#f92672>=</span> employeeList.<span style=color:#a6e22e>stream</span>().<span style=color:#a6e22e>map</span>(a <span style=color:#f92672>-&gt;</span> {
+</span></span><span style=display:flex><span>        Map<span style=color:#f92672>&lt;</span>String, Object<span style=color:#f92672>&gt;</span> map <span style=color:#f92672>=</span> BeanUtil.<span style=color:#a6e22e>beanToMap</span>(a);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> map;
+</span></span><span style=display:flex><span>    }).<span style=color:#a6e22e>collect</span>(Collectors.<span style=color:#a6e22e>toList</span>());
+</span></span><span style=display:flex><span>    resultMap.<span style=color:#a6e22e>put</span>(<span style=color:#e6db74>&#34;employees&#34;</span>, maps);
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 此处需要指定模板路径</span>
+</span></span><span style=display:flex><span>    TemplateExportParams params <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> TemplateExportParams(localPathName, <span style=color:#e6db74>&#34;test&#34;</span>);
+</span></span><span style=display:flex><span>    Workbook workbook <span style=color:#f92672>=</span> ExcelExportUtil.<span style=color:#a6e22e>exportExcel</span>(params, resultMap);
+</span></span><span style=display:flex><span>    OutputStream outputStream <span style=color:#f92672>=</span> response.<span style=color:#a6e22e>getOutputStream</span>();
+</span></span><span style=display:flex><span>    workbook.<span style=color:#a6e22e>write</span>(outputStream);
+</span></span><span style=display:flex><span>    outputStream.<span style=color:#a6e22e>close</span>();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>5、运行代码，生成的文件如下
+<img src="https://xueyao.oss-cn-hangzhou.aliyuncs.com/2021/7/202107751450.png?x-oss-process=style/logo" alt></p><h2 id=总结>总结</h2><p>EasyPOI不提供读取远程模板文件，但是我们可以通过其它方法来实现，下次导出Excle有格式样式改变，我们可以直接调整FTP中的模板文件就可以实现，不用重新部署项目。</p><p><strong>项目代码已存放在Github上</strong></p><p><a href=https://github.com/flowstone/test-code-2021/tree/master/easypoi-export-template>链接地址</a></p></article></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
