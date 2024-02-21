@@ -40,7 +40,7 @@
 </span></span><span style=display:flex><span>        out.<span style=color:#a6e22e>close</span>();
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>使用Postman调用接口，效果如下</p><p><img src="https://xueyao.oss-cn-hangzhou.aliyuncs.com/2021/1/20210121223257127_1184200995.png?x-oss-process=style/logo" alt></p><p>接口响应体中，包含了大量的乱码，如果出现这个效果，则代表接口已返回文件流。</p><h3 id=前端页面设计>前端页面设计</h3><p>首先，创建一个下载按钮，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tsx data-lang=tsx><span style=display:flex><span><span style=color:#75715e>//index.tsx
+</span></span></code></pre></div><p>使用Postman调用接口，效果如下</p><p><img src=../../../images/2021/1/20210121223257127_1184200995.png alt></p><p>接口响应体中，包含了大量的乱码，如果出现这个效果，则代表接口已返回文件流。</p><h3 id=前端页面设计>前端页面设计</h3><p>首先，创建一个下载按钮，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tsx data-lang=tsx><span style=display:flex><span><span style=color:#75715e>//index.tsx
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span>&lt;<span style=color:#f92672>Button</span> <span style=color:#a6e22e>type</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;primary&#34;</span> <span style=color:#a6e22e>onClick</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>downloadOnClick</span>}&gt;
 </span></span><span style=display:flex><span>    <span style=color:#960050;background-color:#1e0010>下载</span>
 </span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>Button</span>&gt;

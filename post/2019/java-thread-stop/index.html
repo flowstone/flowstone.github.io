@@ -45,8 +45,8 @@ Destroy: JDK未实现该方法。</p><div class=highlight><pre tabindex=0 style=
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>理想状态：要么自增成功i=1, j=1，要么自增失败i=0, j=0
-真正程序执行结果：i=1, j=0</p><p><img src=https://xueyao.oss-cn-hangzhou.aliyuncs.com/2019/thread-stop-01.png alt></p><p>没有保证同步代码块里面数据的一致性，破坏了线程安全
-stop方法直接停止线程</p><h2 id=正确的线程中止-interrupt>正确的线程中止-interrupt</h2><p>如果目标线程在调用Object class的wait()、wait(long)或wait(long, int)方法、join()、join(long, int)或sleep(long, int)方法时被阻塞，那么Interrupt会生效，该线程的中断状态将被清除，抛出InterruptedException异常。</p><p>如果目标线程是被I/O或者NIO中的Channel所阻塞，同样，I/O操作会被中断或者返回特殊异常值。达到终止线程的目的。</p><p>如果以上条件都不满足，则会设置此线程的中断状态。</p><p>对Demo中的示例，stop()改成interrupt()后，最终输出为"i=1 j=1"，数据一致。</p><p><img src=https://xueyao.oss-cn-hangzhou.aliyuncs.com/2019/thread-stop-02.png alt></p><h2 id=正确的线程中止-标志位>正确的线程中止-标志位</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>/** 通过状态位来判断 */</span>
+真正程序执行结果：i=1, j=0</p><p><img src=../../../images/2019/thread-stop-01.png alt></p><p>没有保证同步代码块里面数据的一致性，破坏了线程安全
+stop方法直接停止线程</p><h2 id=正确的线程中止-interrupt>正确的线程中止-interrupt</h2><p>如果目标线程在调用Object class的wait()、wait(long)或wait(long, int)方法、join()、join(long, int)或sleep(long, int)方法时被阻塞，那么Interrupt会生效，该线程的中断状态将被清除，抛出InterruptedException异常。</p><p>如果目标线程是被I/O或者NIO中的Channel所阻塞，同样，I/O操作会被中断或者返回特殊异常值。达到终止线程的目的。</p><p>如果以上条件都不满足，则会设置此线程的中断状态。</p><p>对Demo中的示例，stop()改成interrupt()后，最终输出为"i=1 j=1"，数据一致。</p><p><img src=../../../images/2019/thread-stop-02.png alt></p><h2 id=正确的线程中止-标志位>正确的线程中止-标志位</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>/** 通过状态位来判断 */</span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Demo4</span> <span style=color:#66d9ef>extends</span> Thread {
 </span></span><span style=display:flex><span>  <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>volatile</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>boolean</span> flag <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
 </span></span><span style=display:flex><span>
@@ -67,7 +67,7 @@ stop方法直接停止线程</p><h2 id=正确的线程中止-interrupt>正确的
 </span></span><span style=display:flex><span>    System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;程序运行结束&#34;</span>);
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>在上方代码逻辑中，增加一个判断，用来控制线程执行的中止。</p><p><img src=https://xueyao.oss-cn-hangzhou.aliyuncs.com/2019/thread-stop-03.png alt></p></article></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+</span></span></code></pre></div><p>在上方代码逻辑中，增加一个判断，用来控制线程执行的中止。</p><p><img src=../../../images/2019/thread-stop-03.png alt></p></article></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
 |
 <a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
 | 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
