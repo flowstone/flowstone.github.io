@@ -1,508 +1,323 @@
-<!doctype html>
-<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-    <title>薛尧的博客</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="" />
-
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/theme.min.css">
-
-    
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/custom.min.css">
-    
-
-    
-</head>
-<body>
-        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
-    <div class="row">
-        
-        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
-            <a href="../../../" class="text-decoration-none">
-                <img id="home-image" class="rounded-circle"
-                    
-                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
-                    
-                />
-            </a>
-        </div>
-        <div class="col-sm-8 col-12 text-sm-left text-center">
-        
-            <h2 class="m-0 mb-2 mt-4">
-                <a href="../../../" class="text-decoration-none">
-                    
-                        薛尧
-                    
-                </a>
-            </h2>
-            <p class="text-muted mb-1">
-                
-                    Java Developer | Short Video Creator
-                
-            </p>
-            <ul id="nav-links" class="list-inline mb-2">
-                
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
-                    </li>
-                
-            </ul>
-            <ul id="nav-social" class="list-inline">
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="http://github.com/flowstone" target="_blank">
-                            <i class="fab fa-github fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
-                            <i class="fas fa-at fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-            </ul>
-        </div>
-    </div>
-    <hr />
-</header>
-<div class="container">
-    <div class="pl-sm-2">
-        <div class="mb-3">
-            <h3 class="mb-0">Quartz作业调度的入门使用</h3>
-            
-            <small class="text-muted">发布于 2017-11-14</small>
-        </div>
-
-        <article>
-            <h2 id="概念">概念</h2>
-<p>1.Job</p>
-<p>表示一个工作，要执行的具体的内容。此接口中只有一个方法</p>
-<p>2.JobDetail</p>
-<p>JobDetail表示一个具体的可执行的调度程序，Job是这个可执行调度程序所要执行的内容</p>
-<p>3.Trigger</p>
-<p>Trigger代表一个调度参数的配置</p>
-<p>4.Scheduler</p>
-<p>Scheduler代表一个调度容器，一个调度容器中可以注册多个JobDetail和Trigger.</p>
-<p>说明：</p>
-<ul>
-<li>编写job实现业务，要做什么具体事情</li>
-<li>使用JobDetail包装job，是任务对象，可以被调度</li>
-<li>使用Trigger定制什么时候去调用某任务对象</li>
-<li>使用Scheduler结合任务对象和触发器对象</li>
-</ul>
-<h2 id="第一个任务">第一个任务</h2>
-<p>1.引入依赖坐标</p>
-<p>pom.xml</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;dependencies&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;groupId&gt;</span>org.quartz-scheduler<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;artifactId&gt;</span>quartz<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;version&gt;</span>2.2.3<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;groupId&gt;</span>org.quartz-scheduler<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;artifactId&gt;</span>quartz-jobs<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;version&gt;</span>2.2.3<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- slf4j log4j --&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;groupId&gt;</span>org.slf4j<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;artifactId&gt;</span>slf4j-log4j12<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;version&gt;</span>1.7.7<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dependencies&gt;</span>
-</span></span></code></pre></div><p>2.简单测试类</p>
-<p>QuartzTest.java</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.quartz.test;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.junit.Test;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.Scheduler;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.impl.StdSchedulerFactory;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @author XueYao
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @date 2017-11-26
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">QuartzTest</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//quartz容器启动和关闭</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Test</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testFirst</span>() <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();</span>
-</span></span><span style="display:flex;"><span>        Scheduler scheduler <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StdSchedulerFactory().<span style="color:#a6e22e">getScheduler</span>();
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// and start it off</span>
-</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">start</span>();
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//任务写在此处</span>
-</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">shutdown</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="simpletrigger简单任务">SIMPLETRIGGER简单任务</h2>
-<p>1.创建业务任务job：</p>
-<p>HelloJob.java</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.simpletrigger.test;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.Job;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.JobExecutionContext;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.JobExecutionException;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @author XueYao
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @date 2017-11-26
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HelloJob</span>  <span style="color:#66d9ef">implements</span> Job{
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span>(JobExecutionContext jobExecutionContext) <span style="color:#66d9ef">throws</span> JobExecutionException {
-</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;hello quartz... thanks&#34;</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>2.编写调度代码：</p>
-<p>SimpleTriggerTest.java</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.simpletrigger.test;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.junit.Test;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.*;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.impl.StdSchedulerFactory;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.quartz.JobBuilder.newJob;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.quartz.SimpleScheduleBuilder.simpleSchedule;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.quartz.TriggerBuilder.newTrigger;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @author XueYao
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @date 2017-11-26
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SimpleTriggerTest</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//简单任务</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Test</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testSimpleTrigger</span>() <span style="color:#66d9ef">throws</span> SchedulerException {
-</span></span><span style="display:flex;"><span>        SchedulerFactory sf <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StdSchedulerFactory();
-</span></span><span style="display:flex;"><span>        Scheduler scheduler <span style="color:#f92672">=</span> sf.<span style="color:#a6e22e">getScheduler</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// define the job and tie it to our HelloJob class</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//构建调度任务详情对象:包装job，并指定任务的组group1和任务名字job1</span>
-</span></span><span style="display:flex;"><span>        JobDetail job <span style="color:#f92672">=</span> newJob(HelloJob.<span style="color:#a6e22e">class</span>)
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">withIdentity</span>(<span style="color:#e6db74">&#34;job1&#34;</span>, <span style="color:#e6db74">&#34;group1&#34;</span>)
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">build</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Trigger the job to run now, and then repeat every 40 seconds</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//构建一个触发器(触发规则、什么时候如何调用任务的规则)</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">/*
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        * @param1 解决器的名字
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        * @param2  触发任务的组的名字
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        * */</span>
-</span></span><span style="display:flex;"><span>        Trigger trigger <span style="color:#f92672">=</span> newTrigger()
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">withIdentity</span>(<span style="color:#e6db74">&#34;trigger1&#34;</span>, <span style="color:#e6db74">&#34;group1&#34;</span>)
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">startNow</span>() <span style="color:#75715e">//马上开始执行任务</span>
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">withSchedule</span>(simpleSchedule()<span style="color:#75715e">//简单任务</span>
-</span></span><span style="display:flex;"><span>                        .<span style="color:#a6e22e">withIntervalInSeconds</span>(5) <span style="color:#75715e">//间隔5秒</span>
-</span></span><span style="display:flex;"><span>                        .<span style="color:#a6e22e">repeatForever</span>()) <span style="color:#75715e">//永远执行下去</span>
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">build</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Tell quartz to schedule the job using our trigger</span>
-</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">scheduleJob</span>(job, trigger);
-</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">start</span>();
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//死循环，让程序一直执行</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="crontrigger定时任务">CRONTRIGGER定时任务</h2>
-<p>cron表达式
-通过7个字符表示计划，字符间用空格分隔即可</p>
-<ol>
-<li>Seconds 秒</li>
-<li>Minutes 分钟</li>
-<li>Hours 小时</li>
-<li>Day-of-Month 当前月第几天</li>
-<li>Month 月</li>
-<li>Day-of-Week 当前周第几天</li>
-<li>Year 年(可省略)
-举例：</li>
-</ol>
-<p>0 0 12 ？ * WED</p>
-<p>解决： 0秒0分12点每个月星期三</p>
-<p>值的解释：</p>
-<ul>
-<li>0代表数字0</li>
-<li>?代表未知，不存在,一般用于月的某一天和周的某一天，两者不能同时使用</li>
-<li>WED,代表星期几，通常用1-7表示，1是星期日</li>
-<li>/代表每隔多长刻度，例如0/15，放在分钟上，就表示每隔15分钟执行</li>
-</ul>
-<p>测试代码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.crontrigger.test;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> me.xueyao.simpletrigger.test.HelloJob;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.junit.Test;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.*;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.impl.StdSchedulerFactory;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.quartz.JobBuilder.newJob;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.quartz.SimpleScheduleBuilder.simpleSchedule;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.quartz.TriggerBuilder.newTrigger;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * 定时任务
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @author XueYao
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @date 2017-11-26
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CronTriggerTest</span> {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Test</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCronTrigger</span>() <span style="color:#66d9ef">throws</span> SchedulerException {
-</span></span><span style="display:flex;"><span>        SchedulerFactory sf <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StdSchedulerFactory();
-</span></span><span style="display:flex;"><span>        Scheduler scheduler <span style="color:#f92672">=</span> sf.<span style="color:#a6e22e">getScheduler</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// define the job and tie it to our HelloJob class</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//构建调度任务详情对象:包装job，并指定任务的组group1和任务名字job1</span>
-</span></span><span style="display:flex;"><span>        JobDetail job <span style="color:#f92672">=</span> newJob(HelloJob.<span style="color:#a6e22e">class</span>)
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">withIdentity</span>(<span style="color:#e6db74">&#34;job1&#34;</span>, <span style="color:#e6db74">&#34;group1&#34;</span>)
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">build</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//构建一个触发器(触发规则、什么时候如何调用任务的规则)</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">/*
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        * @param1 解决器的名字
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        * @param2  触发任务的组的名字
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        * */</span>
-</span></span><span style="display:flex;"><span>        Trigger trigger <span style="color:#f92672">=</span> newTrigger()
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">withIdentity</span>(<span style="color:#e6db74">&#34;trigger1&#34;</span>, <span style="color:#e6db74">&#34;group1&#34;</span>)
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">startNow</span>() <span style="color:#75715e">//马上开始执行任务</span>
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">withSchedule</span>(
-</span></span><span style="display:flex;"><span>                        <span style="color:#75715e">//每隔5秒运行一次</span>
-</span></span><span style="display:flex;"><span>                        <span style="color:#75715e">//CronScheduleBuilder.cronSchedule(&#34;0/5 * * * * ?&#34;)</span>
-</span></span><span style="display:flex;"><span>                        CronScheduleBuilder.<span style="color:#a6e22e">cronSchedule</span>(<span style="color:#e6db74">&#34;0/5 51 18 ? * 1&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>                ) <span style="color:#75715e">//永远执行下去</span>
-</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">build</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Tell quartz to schedule the job using our trigger</span>
-</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">scheduleJob</span>(job, trigger);
-</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">start</span>();
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="spring整合quartz">SPRING整合QUARTZ</h2>
-<p>1.创建一个Maven java 项目</p>
-<p>2.引入依赖坐标</p>
-<p>pom.xml</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;project</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
-</span></span><span style="display:flex;"><span>         <span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
-</span></span><span style="display:flex;"><span>         <span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;modelVersion&gt;</span>4.0.0<span style="color:#f92672">&lt;/modelVersion&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;groupId&gt;</span>me.xueyao.quartz<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;artifactId&gt;</span>springQuartz<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;version&gt;</span>1.0-SNAPSHOT<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;dependencies&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- spring context --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>spring-context<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>4.2.9.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- spring context support --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>spring-context-support<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>4.2.9.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- spring tx --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>spring-tx<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>4.2.9.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- quartz核心 --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>org.quartz-scheduler<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>quartz<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>2.2.3<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>org.quartz-scheduler<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>quartz-jobs<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>2.2.3<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- slf4j log4j --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>org.slf4j<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>slf4j-log4j12<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>1.7.7<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>junit<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>junit<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>4.11<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;scope&gt;</span>test<span style="color:#f92672">&lt;/scope&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;artifactId&gt;</span>spring-test<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;version&gt;</span>4.2.9.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;scope&gt;</span>test<span style="color:#f92672">&lt;/scope&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/dependencies&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/project&gt;</span>
-</span></span></code></pre></div><p>3.编写job业务任务</p>
-<p>HelloJob.java</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.quartz.job;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.Job;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.JobExecutionContext;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.quartz.JobExecutionException;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @author XueYao
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @date 2017-11-26
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HelloJob</span> <span style="color:#66d9ef">implements</span> Job{
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span>(JobExecutionContext context) <span style="color:#66d9ef">throws</span> JobExecutionException {
-</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;hello quartz Spring ... thanks&#34;</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>4.Spring配置文件</p>
-<p>applicationContext.xml</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;beans</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans&#34;</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span style="color:#a6e22e">xmlns:context=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/context&#34;</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    http://www.springframework.org/schema/beans/spring-beans.xsd
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    http://www.springframework.org/schema/context
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    http://www.springframework.org/schema/context/spring-context.xsd &#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;context:component-scan</span> <span style="color:#a6e22e">base-package=</span><span style="color:#e6db74">&#34;me.xueyao&#34;</span> <span style="color:#f92672">/&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- 配置任务详情对象 --&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;helloJobDetail&#34;</span> <span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;org.springframework.scheduling.quartz.JobDetailFactoryBean&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- 注入job的类型 --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;jobClass&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;me.xueyao.quartz.job.HelloJob&#34;</span><span style="color:#f92672">/&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- 数据存放策略 --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;jobDataAsMap&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;map&gt;</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#75715e">&lt;!-- 任务执行超时时间 --&gt;</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&lt;entry</span> <span style="color:#a6e22e">key=</span><span style="color:#e6db74">&#34;timeout&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;5&#34;</span><span style="color:#f92672">/&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;/map&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/property&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/bean&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- ======================== 调度触发器 ======================== --&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- 简单任务 --&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;simpleTrigger&#34;</span> <span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;org.springframework.scheduling.quartz.SimpleTriggerFactoryBean&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- see the example of method invoking job above
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        注入任务
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;jobDetail&#34;</span> <span style="color:#a6e22e">ref=</span><span style="color:#e6db74">&#34;helloJobDetail&#34;</span> <span style="color:#f92672">/&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- 10 seconds
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        第一次开始时间，即准备的时间，毫秒
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;startDelay&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;5000&#34;</span> <span style="color:#f92672">/&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">&lt;!-- repeat every 50 seconds
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        每次执行的间隔时间
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        --&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;repeatInterval&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;3000&#34;</span> <span style="color:#f92672">/&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/bean&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- 计划任务 --&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- &lt;bean id=&#34;cronTrigger&#34; class=&#34;org.springframework.scheduling.quartz.CronTriggerFactoryBean&#34;&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        &lt;property name=&#34;jobDetail&#34; ref=&#34;exampleJob&#34; /&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        run every morning at 6 AM
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        &lt;property name=&#34;cronExpression&#34; value=&#34;0 0 6 * * ?&#34; /&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    &lt;/bean&gt; --&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- ======================== 调度工厂 ======================== --&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;org.springframework.scheduling.quartz.SchedulerFactoryBean&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;triggers&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;list&gt;</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&lt;ref</span> <span style="color:#a6e22e">bean=</span><span style="color:#e6db74">&#34;simpleTrigger&#34;</span> <span style="color:#f92672">/&gt;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;/list&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/property&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/bean&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/beans&gt;</span>
-</span></span></code></pre></div><p>5.测试代码</p>
-<p>SpringQuartzTest.java</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.springquartz;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.junit.Test;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.junit.runner.RunWith;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.test.context.ContextConfiguration;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @author XueYao
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @date 2017-11-26
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@RunWith</span>(SpringJUnit4ClassRunner.<span style="color:#a6e22e">class</span>)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@ContextConfiguration</span>(locations <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#34;classpath:applicationContext.xml&#34;</span>})
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SpringQuartzTest</span> {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Test</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">test</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div>
-        </article>
-    </div>
-
-    <div id="disqus_thread"></div>
-<script>
-    window.disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-            </div>
-        </div><footer class="text-center pb-1">
-    <small class="text-muted">
-        
-        &copy; Copyright 2024
-        
-        |
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
-        <br />
-        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
-        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
-        <br />
-
-    </small>
-</footer></body>
-</html>
+<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Quartz作业调度的入门使用</h3><small class=text-muted>发布于 2017-11-14</small></div><article><h2 id=概念>概念</h2><p>1.Job</p><p>表示一个工作，要执行的具体的内容。此接口中只有一个方法</p><p>2.JobDetail</p><p>JobDetail表示一个具体的可执行的调度程序，Job是这个可执行调度程序所要执行的内容</p><p>3.Trigger</p><p>Trigger代表一个调度参数的配置</p><p>4.Scheduler</p><p>Scheduler代表一个调度容器，一个调度容器中可以注册多个JobDetail和Trigger.</p><p>说明：</p><ul><li>编写job实现业务，要做什么具体事情</li><li>使用JobDetail包装job，是任务对象，可以被调度</li><li>使用Trigger定制什么时候去调用某任务对象</li><li>使用Scheduler结合任务对象和触发器对象</li></ul><h2 id=第一个任务>第一个任务</h2><p>1.引入依赖坐标</p><p>pom.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.quartz-scheduler<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>quartz<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>2.2.3<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.quartz-scheduler<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>quartz-jobs<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>2.2.3<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- slf4j log4j --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.slf4j<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>slf4j-log4j12<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>1.7.7<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependencies&gt;</span>
+</span></span></code></pre></div><p>2.简单测试类</p><p>QuartzTest.java</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.quartz.test;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.Test;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.Scheduler;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.impl.StdSchedulerFactory;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author XueYao
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @date 2017-11-26
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>QuartzTest</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//quartz容器启动和关闭</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testFirst</span>() <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();</span>
+</span></span><span style=display:flex><span>        Scheduler scheduler <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> StdSchedulerFactory().<span style=color:#a6e22e>getScheduler</span>();
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// and start it off</span>
+</span></span><span style=display:flex><span>        scheduler.<span style=color:#a6e22e>start</span>();
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//任务写在此处</span>
+</span></span><span style=display:flex><span>        scheduler.<span style=color:#a6e22e>shutdown</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=simpletrigger简单任务>SIMPLETRIGGER简单任务</h2><p>1.创建业务任务job：</p><p>HelloJob.java</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.simpletrigger.test;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.Job;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.JobExecutionContext;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.JobExecutionException;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author XueYao
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @date 2017-11-26
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HelloJob</span>  <span style=color:#66d9ef>implements</span> Job{
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>execute</span>(JobExecutionContext jobExecutionContext) <span style=color:#66d9ef>throws</span> JobExecutionException {
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;hello quartz... thanks&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>2.编写调度代码：</p><p>SimpleTriggerTest.java</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.simpletrigger.test;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.Test;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.*;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.impl.StdSchedulerFactory;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.quartz.JobBuilder.newJob;
+</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.quartz.SimpleScheduleBuilder.simpleSchedule;
+</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.quartz.TriggerBuilder.newTrigger;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author XueYao
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @date 2017-11-26
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SimpleTriggerTest</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//简单任务</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testSimpleTrigger</span>() <span style=color:#66d9ef>throws</span> SchedulerException {
+</span></span><span style=display:flex><span>        SchedulerFactory sf <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> StdSchedulerFactory();
+</span></span><span style=display:flex><span>        Scheduler scheduler <span style=color:#f92672>=</span> sf.<span style=color:#a6e22e>getScheduler</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// define the job and tie it to our HelloJob class</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//构建调度任务详情对象:包装job，并指定任务的组group1和任务名字job1</span>
+</span></span><span style=display:flex><span>        JobDetail job <span style=color:#f92672>=</span> newJob(HelloJob.<span style=color:#a6e22e>class</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>withIdentity</span>(<span style=color:#e6db74>&#34;job1&#34;</span>, <span style=color:#e6db74>&#34;group1&#34;</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>build</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Trigger the job to run now, and then repeat every 40 seconds</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//构建一个触发器(触发规则、什么时候如何调用任务的规则)</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>/*
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * @param1 解决器的名字
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * @param2  触发任务的组的名字
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * */</span>
+</span></span><span style=display:flex><span>        Trigger trigger <span style=color:#f92672>=</span> newTrigger()
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>withIdentity</span>(<span style=color:#e6db74>&#34;trigger1&#34;</span>, <span style=color:#e6db74>&#34;group1&#34;</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>startNow</span>() <span style=color:#75715e>//马上开始执行任务</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>withSchedule</span>(simpleSchedule()<span style=color:#75715e>//简单任务</span>
+</span></span><span style=display:flex><span>                        .<span style=color:#a6e22e>withIntervalInSeconds</span>(5) <span style=color:#75715e>//间隔5秒</span>
+</span></span><span style=display:flex><span>                        .<span style=color:#a6e22e>repeatForever</span>()) <span style=color:#75715e>//永远执行下去</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>build</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Tell quartz to schedule the job using our trigger</span>
+</span></span><span style=display:flex><span>        scheduler.<span style=color:#a6e22e>scheduleJob</span>(job, trigger);
+</span></span><span style=display:flex><span>        scheduler.<span style=color:#a6e22e>start</span>();
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//死循环，让程序一直执行</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>while</span> (<span style=color:#66d9ef>true</span>) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=crontrigger定时任务>CRONTRIGGER定时任务</h2><p>cron表达式
+通过7个字符表示计划，字符间用空格分隔即可</p><ol><li>Seconds 秒</li><li>Minutes 分钟</li><li>Hours 小时</li><li>Day-of-Month 当前月第几天</li><li>Month 月</li><li>Day-of-Week 当前周第几天</li><li>Year 年(可省略)
+举例：</li></ol><p>0 0 12 ？ * WED</p><p>解决： 0秒0分12点每个月星期三</p><p>值的解释：</p><ul><li>0代表数字0</li><li>?代表未知，不存在,一般用于月的某一天和周的某一天，两者不能同时使用</li><li>WED,代表星期几，通常用1-7表示，1是星期日</li><li>/代表每隔多长刻度，例如0/15，放在分钟上，就表示每隔15分钟执行</li></ul><p>测试代码：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.crontrigger.test;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> me.xueyao.simpletrigger.test.HelloJob;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.Test;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.*;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.impl.StdSchedulerFactory;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.quartz.JobBuilder.newJob;
+</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.quartz.SimpleScheduleBuilder.simpleSchedule;
+</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.quartz.TriggerBuilder.newTrigger;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * 定时任务
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author XueYao
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @date 2017-11-26
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CronTriggerTest</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testCronTrigger</span>() <span style=color:#66d9ef>throws</span> SchedulerException {
+</span></span><span style=display:flex><span>        SchedulerFactory sf <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> StdSchedulerFactory();
+</span></span><span style=display:flex><span>        Scheduler scheduler <span style=color:#f92672>=</span> sf.<span style=color:#a6e22e>getScheduler</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// define the job and tie it to our HelloJob class</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//构建调度任务详情对象:包装job，并指定任务的组group1和任务名字job1</span>
+</span></span><span style=display:flex><span>        JobDetail job <span style=color:#f92672>=</span> newJob(HelloJob.<span style=color:#a6e22e>class</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>withIdentity</span>(<span style=color:#e6db74>&#34;job1&#34;</span>, <span style=color:#e6db74>&#34;group1&#34;</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>build</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//构建一个触发器(触发规则、什么时候如何调用任务的规则)</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>/*
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * @param1 解决器的名字
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * @param2  触发任务的组的名字
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * */</span>
+</span></span><span style=display:flex><span>        Trigger trigger <span style=color:#f92672>=</span> newTrigger()
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>withIdentity</span>(<span style=color:#e6db74>&#34;trigger1&#34;</span>, <span style=color:#e6db74>&#34;group1&#34;</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>startNow</span>() <span style=color:#75715e>//马上开始执行任务</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>withSchedule</span>(
+</span></span><span style=display:flex><span>                        <span style=color:#75715e>//每隔5秒运行一次</span>
+</span></span><span style=display:flex><span>                        <span style=color:#75715e>//CronScheduleBuilder.cronSchedule(&#34;0/5 * * * * ?&#34;)</span>
+</span></span><span style=display:flex><span>                        CronScheduleBuilder.<span style=color:#a6e22e>cronSchedule</span>(<span style=color:#e6db74>&#34;0/5 51 18 ? * 1&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>                ) <span style=color:#75715e>//永远执行下去</span>
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>build</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Tell quartz to schedule the job using our trigger</span>
+</span></span><span style=display:flex><span>        scheduler.<span style=color:#a6e22e>scheduleJob</span>(job, trigger);
+</span></span><span style=display:flex><span>        scheduler.<span style=color:#a6e22e>start</span>();
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>while</span> (<span style=color:#66d9ef>true</span>) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=spring整合quartz>SPRING整合QUARTZ</h2><p>1.创建一个Maven java 项目</p><p>2.引入依赖坐标</p><p>pom.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>me.xueyao.quartz<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>springQuartz<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- spring context --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-context<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>4.2.9.RELEASE<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- spring context support --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-context-support<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>4.2.9.RELEASE<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- spring tx --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-tx<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>4.2.9.RELEASE<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- quartz核心 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.quartz-scheduler<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>quartz<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>2.2.3<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.quartz-scheduler<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>quartz-jobs<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>2.2.3<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- slf4j log4j --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.slf4j<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>slf4j-log4j12<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>1.7.7<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>junit<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>junit<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>4.11<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-test<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>4.2.9.RELEASE<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependencies&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
+</span></span></code></pre></div><p>3.编写job业务任务</p><p>HelloJob.java</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.quartz.job;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.Job;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.JobExecutionContext;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.quartz.JobExecutionException;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author XueYao
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @date 2017-11-26
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HelloJob</span> <span style=color:#66d9ef>implements</span> Job{
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>execute</span>(JobExecutionContext context) <span style=color:#66d9ef>throws</span> JobExecutionException {
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;hello quartz Spring ... thanks&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>4.Spring配置文件</p><p>applicationContext.xml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;beans</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/beans&#34;</span>
+</span></span><span style=display:flex><span>       <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span style=color:#a6e22e>xmlns:context=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/context&#34;</span>
+</span></span><span style=display:flex><span>       <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;http://www.springframework.org/schema/beans
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    http://www.springframework.org/schema/beans/spring-beans.xsd
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    http://www.springframework.org/schema/context
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    http://www.springframework.org/schema/context/spring-context.xsd &#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;context:component-scan</span> <span style=color:#a6e22e>base-package=</span><span style=color:#e6db74>&#34;me.xueyao&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 配置任务详情对象 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;helloJobDetail&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.springframework.scheduling.quartz.JobDetailFactoryBean&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 注入job的类型 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;jobClass&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;me.xueyao.quartz.job.HelloJob&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 数据存放策略 --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;jobDataAsMap&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;map&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:#75715e>&lt;!-- 任务执行超时时间 --&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;entry</span> <span style=color:#a6e22e>key=</span><span style=color:#e6db74>&#34;timeout&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;5&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/map&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/property&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- ======================== 调度触发器 ======================== --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 简单任务 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;simpleTrigger&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.springframework.scheduling.quartz.SimpleTriggerFactoryBean&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- see the example of method invoking job above
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        注入任务
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;jobDetail&#34;</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;helloJobDetail&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- 10 seconds
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        第一次开始时间，即准备的时间，毫秒
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;startDelay&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;5000&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- repeat every 50 seconds
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        每次执行的间隔时间
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;repeatInterval&#34;</span> <span style=color:#a6e22e>value=</span><span style=color:#e6db74>&#34;3000&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 计划任务 --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- &lt;bean id=&#34;cronTrigger&#34; class=&#34;org.springframework.scheduling.quartz.CronTriggerFactoryBean&#34;&gt;
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        &lt;property name=&#34;jobDetail&#34; ref=&#34;exampleJob&#34; /&gt;
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        run every morning at 6 AM
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        &lt;property name=&#34;cronExpression&#34; value=&#34;0 0 6 * * ?&#34; /&gt;
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    &lt;/bean&gt; --&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- ======================== 调度工厂 ======================== --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;bean</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;org.springframework.scheduling.quartz.SchedulerFactoryBean&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;triggers&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;list&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;ref</span> <span style=color:#a6e22e>bean=</span><span style=color:#e6db74>&#34;simpleTrigger&#34;</span> <span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/list&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/property&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/bean&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/beans&gt;</span>
+</span></span></code></pre></div><p>5.测试代码</p><p>SpringQuartzTest.java</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.springquartz;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.Test;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.runner.RunWith;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.test.context.ContextConfiguration;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author XueYao
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @date 2017-11-26
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@RunWith</span>(SpringJUnit4ClassRunner.<span style=color:#a6e22e>class</span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@ContextConfiguration</span>(locations <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#34;classpath:applicationContext.xml&#34;</span>})
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SpringQuartzTest</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>test</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>while</span> (<span style=color:#66d9ef>true</span>) {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>

@@ -1,246 +1,97 @@
-<!doctype html>
-<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-    <title>薛尧的博客</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="" />
-
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/theme.min.css">
-
-    
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/custom.min.css">
-    
-
-    
-</head>
-<body>
-        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
-    <div class="row">
-        
-        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
-            <a href="../../../" class="text-decoration-none">
-                <img id="home-image" class="rounded-circle"
-                    
-                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
-                    
-                />
-            </a>
-        </div>
-        <div class="col-sm-8 col-12 text-sm-left text-center">
-        
-            <h2 class="m-0 mb-2 mt-4">
-                <a href="../../../" class="text-decoration-none">
-                    
-                        薛尧
-                    
-                </a>
-            </h2>
-            <p class="text-muted mb-1">
-                
-                    Java Developer | Short Video Creator
-                
-            </p>
-            <ul id="nav-links" class="list-inline mb-2">
-                
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
-                    </li>
-                
-            </ul>
-            <ul id="nav-social" class="list-inline">
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="http://github.com/flowstone" target="_blank">
-                            <i class="fab fa-github fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
-                            <i class="fas fa-at fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-            </ul>
-        </div>
-    </div>
-    <hr />
-</header>
-<div class="container">
-    <div class="pl-sm-2">
-        <div class="mb-3">
-            <h3 class="mb-0">React中如何实现文件下载功能</h3>
-            
-            <small class="text-muted">发布于 2021-01-05</small>
-        </div>
-
-        <article>
-            <h3 id="场景描述">场景描述</h3>
-<p>在前端页面中，经常会使用到文件下载功能，我们如何实现下载功能呢？</p>
-<h3 id="开发环境">开发环境</h3>
-<ul>
-<li>React ^16.12.0</li>
-<li>Ant Design ^5.0.12</li>
-<li>SpringBoot 2.3.0</li>
-</ul>
-<h3 id="问题分析">问题分析</h3>
-<p>首先，想到下载，肯定要涉及文件流(字节流)，后端接口返回文件流，前端页面把文件流保存成对应的文件。</p>
-<h3 id="后端接口设计">后端接口设计</h3>
-<p>写一个无返回值的方法，方法参数是HttpServletResponse，代码如下所示</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//SmsTemplateController.java</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@GetMapping</span>(<span style="color:#e6db74">&#34;/download&#34;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">download</span>(HttpServletResponse response) <span style="color:#66d9ef">throws</span> IOException {
-</span></span><span style="display:flex;"><span>    smsTemplateService.<span style="color:#a6e22e">download</span>(response);
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>接口的具体实现，如下所示</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//SmsTemplateServiceImpl.java</span>
-</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">download</span>(HttpServletResponse response) <span style="color:#66d9ef">throws</span> IOException {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//设置字符集</span>
-</span></span><span style="display:flex;"><span>    response.<span style="color:#a6e22e">setCharacterEncoding</span>(<span style="color:#e6db74">&#34;utf-8&#34;</span>);
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//response.setContentType(&#34;application/vnd.ms-excel&#34;);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//设置响应的头</span>
-</span></span><span style="display:flex;"><span>    response.<span style="color:#a6e22e">setHeader</span>(<span style="color:#e6db74">&#34;Content-Disposition&#34;</span>, <span style="color:#e6db74">&#34;attachment;filename = &#34;</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;helloworld.png&#34;</span>);
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//获得响应的字节流</span>
-</span></span><span style="display:flex;"><span>    OutputStream outputStream <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">getOutputStream</span>();
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//文件写死，根据需求改变</span>
-</span></span><span style="display:flex;"><span>    File file <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> File(<span style="color:#e6db74">&#34;/Users/simonxue/Developer/Temp/file.png&#34;</span>);
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//把文件内容复制到字节输出流中</span>
-</span></span><span style="display:flex;"><span>    FileIoUtil.<span style="color:#a6e22e">copyFile</span>(file, outputStream);
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>我们的文件流主要是放在接口响应中，其中涉及到一个工具类，如下所示</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//FileIoUtil.java</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * 复制file中的内容到输出流中
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @param file 文件内容
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @param out 输出流
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @throws IOException
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">copyFile</span>(File file, OutputStream out) <span style="color:#66d9ef">throws</span> IOException {
-</span></span><span style="display:flex;"><span>    InputStream input <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> {
-</span></span><span style="display:flex;"><span>        input <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileInputStream(file);
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> buf <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[</span>1024<span style="color:#f92672">]</span>;
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> bytesRead;
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> ((bytesRead <span style="color:#f92672">=</span> input.<span style="color:#a6e22e">read</span>(buf)) <span style="color:#f92672">&gt;</span> 0) {
-</span></span><span style="display:flex;"><span>            out.<span style="color:#a6e22e">write</span>(buf, 0, bytesRead);
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">finally</span> {
-</span></span><span style="display:flex;"><span>        input.<span style="color:#a6e22e">close</span>();
-</span></span><span style="display:flex;"><span>        out.<span style="color:#a6e22e">close</span>();
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>使用Postman调用接口，效果如下</p>
-<p><img src="https://ueyao.github.io/image-hosting/blog/2021/1/20210121223257127_1184200995.png" alt=""></p>
-<p>接口响应体中，包含了大量的乱码，如果出现这个效果，则代表接口已返回文件流。</p>
-<h3 id="前端页面设计">前端页面设计</h3>
-<p>首先，创建一个下载按钮，如下所示</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-tsx" data-lang="tsx"><span style="display:flex;"><span><span style="color:#75715e">//index.tsx
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>&lt;<span style="color:#f92672">Button</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;primary&#34;</span> <span style="color:#a6e22e">onClick</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">downloadOnClick</span>}&gt;
-</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">下载</span>
-</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">Button</span>&gt;
-</span></span></code></pre></div><p>并且绑定一个点击事件，如下所示</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-tsx" data-lang="tsx"><span style="display:flex;"><span><span style="color:#75715e">//index.tsx
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">downloadOnClick</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> () <span style="color:#f92672">=&gt;</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">imgDownload</span>();
-</span></span><span style="display:flex;"><span>};
-</span></span></code></pre></div><p>下载文件具体操作，如下所示</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ts" data-lang="ts"><span style="display:flex;"><span><span style="color:#75715e">//service.ts
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">export</span> <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">imgDownload</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">data?</span>: <span style="color:#66d9ef">any</span>) <span style="color:#f92672">=&gt;</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Promise</span>((<span style="color:#a6e22e">resolve</span>, <span style="color:#a6e22e">reject</span>) <span style="color:#f92672">=&gt;</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">axios</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">//接口请求地址
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      .<span style="color:#66d9ef">get</span>(<span style="color:#e6db74">&#39;/smsTemp/download&#39;</span>, {
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//请求参数中，带上响应类型，否则文件损坏
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">responseType</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;blob&#39;</span>,
-</span></span><span style="display:flex;"><span>      })
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">//接口响应成功后
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">res</span> <span style="color:#f92672">=&gt;</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">content</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">data</span>;
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">blob</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Blob</span>([<span style="color:#a6e22e">content</span>], { <span style="color:#66d9ef">type</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;charset=utf-8&#39;</span> });
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//定义文件名称，写死，根据需求自行更改
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fileName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;helloworld.png&#39;</span>;
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//判断是不是IE浏览器
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>window.<span style="color:#a6e22e">navigator</span>.<span style="color:#a6e22e">msSaveOrOpenBlob</span>) {
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">// 创建一个a标签
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">downlink</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">createElement</span>(<span style="color:#e6db74">&#39;a&#39;</span>);
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">// 设置a标签download属性
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#a6e22e">downlink</span>.<span style="color:#a6e22e">download</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">fileName</span>;
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">// 设置a标签display属性
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#a6e22e">downlink</span>.<span style="color:#a6e22e">style</span>.<span style="color:#a6e22e">display</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;none&#39;</span>;
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">// 设置a标签href属性
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#a6e22e">downlink</span>.<span style="color:#a6e22e">href</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">URL</span>.<span style="color:#a6e22e">createObjectURL</span>(<span style="color:#a6e22e">blob</span>);
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">// 添加a标签到Body中
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          document.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">appendChild</span>(<span style="color:#a6e22e">downlink</span>);
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">//点击a标签
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#a6e22e">downlink</span>.<span style="color:#a6e22e">click</span>();
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">//清除a标签中的href属性
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#a6e22e">URL</span>.<span style="color:#a6e22e">revokeObjectURL</span>(<span style="color:#a6e22e">downlink</span>.<span style="color:#a6e22e">href</span>);
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">//从body中删除该a标签
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          document.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">removeChild</span>(<span style="color:#a6e22e">downlink</span>);
-</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>          <span style="color:#75715e">//IE浏览器
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          window.<span style="color:#a6e22e">navigator</span>.<span style="color:#a6e22e">msSaveBlob</span>(<span style="color:#a6e22e">blob</span>, <span style="color:#a6e22e">fileName</span>);
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>      })
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">//异常处理
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      .<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">e</span> <span style="color:#f92672">=&gt;</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#39;下载失败&#39;</span>);
-</span></span><span style="display:flex;"><span>      });
-</span></span><span style="display:flex;"><span>  });
-</span></span></code></pre></div>
-        </article>
-    </div>
-
-    <div id="disqus_thread"></div>
-<script>
-    window.disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-            </div>
-        </div><footer class="text-center pb-1">
-    <small class="text-muted">
-        
-        &copy; Copyright 2024
-        
-        |
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
-        <br />
-        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
-        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
-        <br />
-
-    </small>
-</footer></body>
-</html>
+<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>React中如何实现文件下载功能</h3><small class=text-muted>发布于 2021-01-05</small></div><article><h3 id=场景描述>场景描述</h3><p>在前端页面中，经常会使用到文件下载功能，我们如何实现下载功能呢？</p><h3 id=开发环境>开发环境</h3><ul><li>React ^16.12.0</li><li>Ant Design ^5.0.12</li><li>SpringBoot 2.3.0</li></ul><h3 id=问题分析>问题分析</h3><p>首先，想到下载，肯定要涉及文件流(字节流)，后端接口返回文件流，前端页面把文件流保存成对应的文件。</p><h3 id=后端接口设计>后端接口设计</h3><p>写一个无返回值的方法，方法参数是HttpServletResponse，代码如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>//SmsTemplateController.java</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@GetMapping</span>(<span style=color:#e6db74>&#34;/download&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>download</span>(HttpServletResponse response) <span style=color:#66d9ef>throws</span> IOException {
+</span></span><span style=display:flex><span>    smsTemplateService.<span style=color:#a6e22e>download</span>(response);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接口的具体实现，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>//SmsTemplateServiceImpl.java</span>
+</span></span><span style=display:flex><span> <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>download</span>(HttpServletResponse response) <span style=color:#66d9ef>throws</span> IOException {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//设置字符集</span>
+</span></span><span style=display:flex><span>    response.<span style=color:#a6e22e>setCharacterEncoding</span>(<span style=color:#e6db74>&#34;utf-8&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//response.setContentType(&#34;application/vnd.ms-excel&#34;);</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//设置响应的头</span>
+</span></span><span style=display:flex><span>    response.<span style=color:#a6e22e>setHeader</span>(<span style=color:#e6db74>&#34;Content-Disposition&#34;</span>, <span style=color:#e6db74>&#34;attachment;filename = &#34;</span> <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;helloworld.png&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//获得响应的字节流</span>
+</span></span><span style=display:flex><span>    OutputStream outputStream <span style=color:#f92672>=</span> response.<span style=color:#a6e22e>getOutputStream</span>();
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//文件写死，根据需求改变</span>
+</span></span><span style=display:flex><span>    File file <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> File(<span style=color:#e6db74>&#34;/Users/simonxue/Developer/Temp/file.png&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//把文件内容复制到字节输出流中</span>
+</span></span><span style=display:flex><span>    FileIoUtil.<span style=color:#a6e22e>copyFile</span>(file, outputStream);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>我们的文件流主要是放在接口响应中，其中涉及到一个工具类，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>//FileIoUtil.java</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/**
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * 复制file中的内容到输出流中
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @param file 文件内容
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @param out 输出流
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * @throws IOException
+</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>copyFile</span>(File file, OutputStream out) <span style=color:#66d9ef>throws</span> IOException {
+</span></span><span style=display:flex><span>    InputStream input <span style=color:#f92672>=</span> <span style=color:#66d9ef>null</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span> {
+</span></span><span style=display:flex><span>        input <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> FileInputStream(file);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>byte</span><span style=color:#f92672>[]</span> buf <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>byte</span><span style=color:#f92672>[</span>1024<span style=color:#f92672>]</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> bytesRead;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>while</span> ((bytesRead <span style=color:#f92672>=</span> input.<span style=color:#a6e22e>read</span>(buf)) <span style=color:#f92672>&gt;</span> 0) {
+</span></span><span style=display:flex><span>            out.<span style=color:#a6e22e>write</span>(buf, 0, bytesRead);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>finally</span> {
+</span></span><span style=display:flex><span>        input.<span style=color:#a6e22e>close</span>();
+</span></span><span style=display:flex><span>        out.<span style=color:#a6e22e>close</span>();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>使用Postman调用接口，效果如下</p><p><img src=https://ueyao.github.io/image-hosting/blog/2021/1/20210121223257127_1184200995.png alt></p><p>接口响应体中，包含了大量的乱码，如果出现这个效果，则代表接口已返回文件流。</p><h3 id=前端页面设计>前端页面设计</h3><p>首先，创建一个下载按钮，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tsx data-lang=tsx><span style=display:flex><span><span style=color:#75715e>//index.tsx
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>&lt;<span style=color:#f92672>Button</span> <span style=color:#a6e22e>type</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;primary&#34;</span> <span style=color:#a6e22e>onClick</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>downloadOnClick</span>}&gt;
+</span></span><span style=display:flex><span>    <span style=color:#960050;background-color:#1e0010>下载</span>
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>Button</span>&gt;
+</span></span></code></pre></div><p>并且绑定一个点击事件，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tsx data-lang=tsx><span style=display:flex><span><span style=color:#75715e>//index.tsx
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>const</span> <span style=color:#a6e22e>downloadOnClick</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>async</span> () <span style=color:#f92672>=&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>await</span> <span style=color:#a6e22e>imgDownload</span>();
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>下载文件具体操作，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ts data-lang=ts><span style=display:flex><span><span style=color:#75715e>//service.ts
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>imgDownload</span> <span style=color:#f92672>=</span> (<span style=color:#a6e22e>data?</span>: <span style=color:#66d9ef>any</span>) <span style=color:#f92672>=&gt;</span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Promise</span>((<span style=color:#a6e22e>resolve</span>, <span style=color:#a6e22e>reject</span>) <span style=color:#f92672>=&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>axios</span>
+</span></span><span style=display:flex><span>      <span style=color:#75715e>//接口请求地址
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>      .<span style=color:#66d9ef>get</span>(<span style=color:#e6db74>&#39;/smsTemp/download&#39;</span>, {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//请求参数中，带上响应类型，否则文件损坏
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>responseType</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#39;blob&#39;</span>,
+</span></span><span style=display:flex><span>      })
+</span></span><span style=display:flex><span>      <span style=color:#75715e>//接口响应成功后
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>      .<span style=color:#a6e22e>then</span>(<span style=color:#a6e22e>res</span> <span style=color:#f92672>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>content</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>res</span>.<span style=color:#a6e22e>data</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>blob</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Blob</span>([<span style=color:#a6e22e>content</span>], { <span style=color:#66d9ef>type</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#39;charset=utf-8&#39;</span> });
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//定义文件名称，写死，根据需求自行更改
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>fileName</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;helloworld.png&#39;</span>;
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//判断是不是IE浏览器
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>window.<span style=color:#a6e22e>navigator</span>.<span style=color:#a6e22e>msSaveOrOpenBlob</span>) {
+</span></span><span style=display:flex><span>          <span style=color:#75715e>// 创建一个a标签
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>downlink</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>createElement</span>(<span style=color:#e6db74>&#39;a&#39;</span>);
+</span></span><span style=display:flex><span>          <span style=color:#75715e>// 设置a标签download属性
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          <span style=color:#a6e22e>downlink</span>.<span style=color:#a6e22e>download</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>fileName</span>;
+</span></span><span style=display:flex><span>          <span style=color:#75715e>// 设置a标签display属性
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          <span style=color:#a6e22e>downlink</span>.<span style=color:#a6e22e>style</span>.<span style=color:#a6e22e>display</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;none&#39;</span>;
+</span></span><span style=display:flex><span>          <span style=color:#75715e>// 设置a标签href属性
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          <span style=color:#a6e22e>downlink</span>.<span style=color:#a6e22e>href</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>URL</span>.<span style=color:#a6e22e>createObjectURL</span>(<span style=color:#a6e22e>blob</span>);
+</span></span><span style=display:flex><span>          <span style=color:#75715e>// 添加a标签到Body中
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          document.<span style=color:#a6e22e>body</span>.<span style=color:#a6e22e>appendChild</span>(<span style=color:#a6e22e>downlink</span>);
+</span></span><span style=display:flex><span>          <span style=color:#75715e>//点击a标签
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          <span style=color:#a6e22e>downlink</span>.<span style=color:#a6e22e>click</span>();
+</span></span><span style=display:flex><span>          <span style=color:#75715e>//清除a标签中的href属性
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          <span style=color:#a6e22e>URL</span>.<span style=color:#a6e22e>revokeObjectURL</span>(<span style=color:#a6e22e>downlink</span>.<span style=color:#a6e22e>href</span>);
+</span></span><span style=display:flex><span>          <span style=color:#75715e>//从body中删除该a标签
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          document.<span style=color:#a6e22e>body</span>.<span style=color:#a6e22e>removeChild</span>(<span style=color:#a6e22e>downlink</span>);
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>          <span style=color:#75715e>//IE浏览器
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>          window.<span style=color:#a6e22e>navigator</span>.<span style=color:#a6e22e>msSaveBlob</span>(<span style=color:#a6e22e>blob</span>, <span style=color:#a6e22e>fileName</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      })
+</span></span><span style=display:flex><span>      <span style=color:#75715e>//异常处理
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>      .<span style=color:#66d9ef>catch</span>(<span style=color:#a6e22e>e</span> <span style=color:#f92672>=&gt;</span> {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>reject</span>(<span style=color:#e6db74>&#39;下载失败&#39;</span>);
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>  });
+</span></span></code></pre></div></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
