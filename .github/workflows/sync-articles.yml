@@ -25,23 +25,10 @@ jobs:
           path: content/post
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Check if there are any changes in the articles repository
-      - name: Check if articles repo has changes
-        run: |
-          cd content/post
-          git fetch origin main
-          # Check for any changes in the 'content/post' folder
-          if [[ $(git diff --stat HEAD origin/main) == *"content/post"* ]]; then
-            echo "Changes detected, syncing articles."
-            echo "yes" > ../sync_needed.txt
-          else
-            echo "No changes detected in articles repo."
-            echo "no" > ../sync_needed.txt
-          fi
+      
 
       # If there are changes, commit and push them to the blog repo
       - name: Commit and push articles changes
-        if: success() && steps.check-for-changes.outputs.sync_needed == 'yes'
         run: |
           git add content/post
           git commit -m "Sync articles from new repository"
