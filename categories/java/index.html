@@ -1,22 +1,295 @@
-<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
-<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../css/theme.min.css><link rel=stylesheet href=../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class="pl-sm-4 ml-sm-5"><h4>分类 - Java</h4><ul class=list-unstyled><li><time datetime="2021-07-25 13:31:32">2021-07-25
-</time><a class=post-a-unstyled href=../../post/2021/java-ftp-temple-easypoi-export-xls/>如何使用FTP中的模板文件和EasyPOI来导出Excle?</a></li><li><time datetime="2019-12-11 12:45:59">2019-12-11
-</time><a class=post-a-unstyled href=../../post/2019/jpa-use-common-annotaion/>JPA使用-实体类上常用注解</a></li><li><time datetime="2019-12-01 12:45:00">2019-12-01
-</time><a class=post-a-unstyled href=../../post/2019/code-optimize-if/>代码优化-多态代替IF条件判断</a></li><li><time datetime="2019-09-03 12:42:43">2019-09-03
-</time><a class=post-a-unstyled href=../../post/2019/java-thread-communication/>Java多线程-线程通信</a></li><li><time datetime="2019-08-26 12:41:06">2019-08-26
-</time><a class=post-a-unstyled href=../../post/2019/java-thread-stop/>Java多线程-线程中止</a></li><li><time datetime="2019-08-25 12:40:14">2019-08-25
-</time><a class=post-a-unstyled href=../../post/2019/java-thread-status/>Java多线程-线程状态</a></li><li><time datetime="2019-08-25 12:39:19">2019-08-25
-</time><a class=post-a-unstyled href=../../post/2019/java-thread-program-run-stack/>Java多线程-程序运行堆栈分析</a></li><li><time datetime="2019-08-23 12:37:51">2019-08-23
-</time><a class=post-a-unstyled href=../../post/2019/java-cache-google-guava/>Java内存缓存-通过Google Guava创建缓存</a></li><li><time datetime="2019-08-22 12:37:04">2019-08-22
-</time><a class=post-a-unstyled href=../../post/2019/java-cache-map/>Java内存缓存-通过Map定制简单缓存</a></li><li><time datetime="2018-10-18 12:19:00">2018-10-18
-</time><a class=post-a-unstyled href=../../post/2018/java-elastic-search-install-run/>ElasticSearch从入门到放弃(一)-安装&运行</a></li><li><time datetime="2018-10-11 12:17:11">2018-10-11
-</time><a class=post-a-unstyled href=../../post/2018/java-intelllij-hidden-idea-dir/>IntelliJ IDEA技巧一之隐藏.idea目录</a></li><li><time datetime="2018-09-07 12:13:29">2018-09-07
-</time><a class=post-a-unstyled href=../../post/2019/java-cup-cache-memory-barrier/>CPU缓存和内存屏障</a></li><li><time datetime="2017-11-25 12:10:42">2017-11-25
-</time><a class=post-a-unstyled href=../../post/2017/java-cache-ehcache-use/>Ehcache缓存简单使用</a></li><li><time datetime="2017-11-14 12:09:41">2017-11-14
-</time><a class=post-a-unstyled href=../../post/2017/java-quartz-guide/>Quartz作业调度的入门使用</a></li><li><time datetime="2017-09-13 12:02:47">2017-09-13
-</time><a class=post-a-unstyled href=../../post/2017/java-email-simple-use-example/>Javamail简单使用案例</a></li><li><time datetime="2017-07-07 11:29:08">2017-07-07
-</time><a class=post-a-unstyled href=../../post/2017/java-how-use-equals/>关于equals()方法两边变量如何放置</a></li><li><time datetime="2017-07-02 11:28:02">2017-07-02
-</time><a class=post-a-unstyled href=../../post/2017/java-random-guide/>Java Random入门</a></li></ul></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
-|
-<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
-| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
+<!doctype html>
+<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>薛尧的博客</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+    
+    <link rel="stylesheet" href="../../css/custom.min.css">
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        薛尧
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Java Developer | Short Video Creator
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="关于">关于</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="文章">文章</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="分类">分类</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/flowstone" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
+                            <i class="fas fa-at fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+<div class="pl-sm-4 ml-sm-5">
+    <h4> 分类 - Java </h4>
+    
+    <ul class="list-unstyled">
+        
+        <li>
+            
+                <time datetime="2021-07-25 13:31:32">
+                2021-07-25
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2021/java-ftp-temple-easypoi-export-xls/">
+                如何使用FTP中的模板文件和EasyPOI来导出Excle?
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-12-11 12:45:59">
+                2019-12-11
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/jpa-use-common-annotaion/">
+                JPA使用-实体类上常用注解
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-12-01 12:45:00">
+                2019-12-01
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/code-optimize-if/">
+                代码优化-多态代替IF条件判断
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-09-03 12:42:43">
+                2019-09-03
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/java-thread-communication/">
+                Java多线程-线程通信
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-08-26 12:41:06">
+                2019-08-26
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/java-thread-stop/">
+                Java多线程-线程中止
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-08-25 12:40:14">
+                2019-08-25
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/java-thread-status/">
+                Java多线程-线程状态
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-08-25 12:39:19">
+                2019-08-25
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/java-thread-program-run-stack/">
+                Java多线程-程序运行堆栈分析
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-08-23 12:37:51">
+                2019-08-23
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/java-cache-google-guava/">
+                Java内存缓存-通过Google Guava创建缓存
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2019-08-22 12:37:04">
+                2019-08-22
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/java-cache-map/">
+                Java内存缓存-通过Map定制简单缓存
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2018-10-18 12:19:00">
+                2018-10-18
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2018/java-elastic-search-install-run/">
+                ElasticSearch从入门到放弃(一)-安装&amp;运行
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2018-10-11 12:17:11">
+                2018-10-11
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2018/java-intelllij-hidden-idea-dir/">
+                IntelliJ IDEA技巧一之隐藏.idea目录
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2018-09-07 12:13:29">
+                2018-09-07
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2019/java-cup-cache-memory-barrier/">
+                CPU缓存和内存屏障
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2017-11-25 12:10:42">
+                2017-11-25
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2017/java-cache-ehcache-use/">
+                Ehcache缓存简单使用
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2017-11-14 12:09:41">
+                2017-11-14
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2017/java-quartz-guide/">
+                Quartz作业调度的入门使用
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2017-09-13 12:02:47">
+                2017-09-13
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2017/java-email-simple-use-example/">
+                Javamail简单使用案例
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2017-07-07 11:29:08">
+                2017-07-07
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2017/java-how-use-equals/">
+                关于equals()方法两边变量如何放置
+            </a>
+        </li>
+        
+        <li>
+            
+                <time datetime="2017-07-02 11:28:02">
+                2017-07-02
+                </time>
+            
+            <a class="post-a-unstyled" href="../../post/2017/java-random-guide/">
+                Java Random入门
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+        &copy; Copyright 2024
+        
+        |
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
+        <br />
+        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
+        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+        <br />
+
+    </small>
+</footer></body>
+</html>
