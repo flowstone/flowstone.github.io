@@ -1,3 +1,6 @@
 [submodule "themes/devise"]
 	path = themes/devise
 	url = git@github.com:flowstone/hugo-theme-devise.git
+[submodule "content/post"]
+	path = content/post
+	url = https://github.com/flowstone/blog-articles
