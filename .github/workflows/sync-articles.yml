@@ -35,7 +35,7 @@ jobs:
       # If there are changes, commit and push them to the blog repo
       - name: Commit and push articles changes
         run: |
-          git rm --cached content/posts  # 移除已添加的 content/posts 目录
+          git rm --cached content/post  # 移除已添加的 content/posts 目录
           git submodule add https://github.com/flowstone/blog-articles content/post
           git commit -m "Sync articles from new repository"
           git push origin main
