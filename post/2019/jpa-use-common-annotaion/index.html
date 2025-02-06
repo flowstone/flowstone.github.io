@@ -1,17 +1,164 @@
-<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
-<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>JPA使用-实体类上常用注解</h3><small class=text-muted>发布于 2019-12-11</small></div><article><h2 id=sqldelete>@SQLDelete</h2><h3 id=场景描述>场景描述</h3><p>JPA中提供了简单的CRUD操作，其中删除操作是物理删除，但是实际应用中，系统中的数据是一种资源，不能直接删除，应该做到逻辑删除，JPA中删除操作是不可取的。</p><h3 id=场景示例>场景示例</h3><p>调用JPA的删除方法，如下代码所示：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testJpaDelete</span>() {
-</span></span><span style=display:flex><span>  <span style=color:#75715e>//此处根据id删除角色信息</span>
-</span></span><span style=display:flex><span>  roleRepository.<span style=color:#a6e22e>deleteById</span>(1);
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>执行上面的测试方法，数据表中主键为1的数据，已经被删除掉，看下JPA的执行SQL如下所示:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-mysql data-lang=mysql><span style=display:flex><span><span style=color:#66d9ef>delete</span> <span style=color:#66d9ef>from</span> role <span style=color:#66d9ef>where</span> id<span style=color:#f92672>=?</span>
-</span></span></code></pre></div><p>此语句为JPA删除操作的默认执行语句。</p><h3 id=解决方案>解决方案</h3><p>JPA的默认删除方法，并不可取，可以在Role实体上加上@SQLDelete注解，并写SQL语句，如下所示:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@SQLDelete</span>(sql <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;update role set is_deleted = 1 where id = ?&#34;</span>)
-</span></span></code></pre></div><p>上面的注解代表着，只要执行JPA的删除操作，执行的SQL语句为我们自己定义的SQL语句。</p><h4 id=测试一下>测试一下</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span> <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testJpaDelete</span>() {
-</span></span><span style=display:flex><span>  roleRepository.<span style=color:#a6e22e>deleteById</span>(2);
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>结果打印的SQL执行语句，如下所示</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-mysql data-lang=mysql><span style=display:flex><span><span style=color:#66d9ef>update</span> role <span style=color:#66d9ef>set</span> is_deleted <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span> <span style=color:#66d9ef>where</span> id <span style=color:#f92672>=</span> <span style=color:#f92672>?</span>
-</span></span></code></pre></div><h2 id=dynamicinsert>@DynamicInsert</h2><h3 id=场景描述-1>场景描述</h3><p>在JPA中添加/更新都是使用save()方法，一般情况下，创建数据表的时候，会给某些字段设置默认的值，避免在插入的时候手动赋值，如创建时间，是否删除等等。</p><p>save方法会把没有值的对象，默认赋空值，造成，原数据表的默认值失效。</p><h3 id=场景示例-1>场景示例</h3><h3 id=解决方案-1>解决方案</h3><h2 id=dynamicupdate>@DynamicUpdate</h2></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
-|
-<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
-| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
+<!doctype html>
+<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>薛尧的博客</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/theme.min.css">
+
+    
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/custom.min.css">
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../../" class="text-decoration-none">
+                    
+                        薛尧
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Java Developer | Short Video Creator
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/flowstone" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
+                            <i class="fas fa-at fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">JPA使用-实体类上常用注解</h3>
+            
+            <small class="text-muted">发布于 2019-12-11</small>
+        </div>
+
+        <article>
+            <h2 id="sqldelete">@SQLDelete</h2>
+<h3 id="场景描述">场景描述</h3>
+<p>JPA中提供了简单的CRUD操作，其中删除操作是物理删除，但是实际应用中，系统中的数据是一种资源，不能直接删除，应该做到逻辑删除，JPA中删除操作是不可取的。</p>
+<h3 id="场景示例">场景示例</h3>
+<p>调用JPA的删除方法，如下代码所示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testJpaDelete</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">//此处根据id删除角色信息</span>
+</span></span><span style="display:flex;"><span>  roleRepository.<span style="color:#a6e22e">deleteById</span>(1);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>执行上面的测试方法，数据表中主键为1的数据，已经被删除掉，看下JPA的执行SQL如下所示:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-mysql" data-lang="mysql"><span style="display:flex;"><span><span style="color:#66d9ef">delete</span> <span style="color:#66d9ef">from</span> role <span style="color:#66d9ef">where</span> id<span style="color:#f92672">=?</span>
+</span></span></code></pre></div><p>此语句为JPA删除操作的默认执行语句。</p>
+<h3 id="解决方案">解决方案</h3>
+<p>JPA的默认删除方法，并不可取，可以在Role实体上加上@SQLDelete注解，并写SQL语句，如下所示:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@SQLDelete</span>(sql <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;update role set is_deleted = 1 where id = ?&#34;</span>)
+</span></span></code></pre></div><p>上面的注解代表着，只要执行JPA的删除操作，执行的SQL语句为我们自己定义的SQL语句。</p>
+<h4 id="测试一下">测试一下</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span> <span style="color:#a6e22e">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testJpaDelete</span>() {
+</span></span><span style="display:flex;"><span>  roleRepository.<span style="color:#a6e22e">deleteById</span>(2);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>结果打印的SQL执行语句，如下所示</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-mysql" data-lang="mysql"><span style="display:flex;"><span><span style="color:#66d9ef">update</span> role <span style="color:#66d9ef">set</span> is_deleted <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">where</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span>
+</span></span></code></pre></div><h2 id="dynamicinsert">@DynamicInsert</h2>
+<h3 id="场景描述-1">场景描述</h3>
+<p>在JPA中添加/更新都是使用save()方法，一般情况下，创建数据表的时候，会给某些字段设置默认的值，避免在插入的时候手动赋值，如创建时间，是否删除等等。</p>
+<p>save方法会把没有值的对象，默认赋空值，造成，原数据表的默认值失效。</p>
+<h3 id="场景示例-1">场景示例</h3>
+<h3 id="解决方案-1">解决方案</h3>
+<h2 id="dynamicupdate">@DynamicUpdate</h2>
+
+        </article>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+        &copy; Copyright 2024
+        
+        |
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
+        <br />
+        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
+        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+        <br />
+
+    </small>
+</footer></body>
+</html>

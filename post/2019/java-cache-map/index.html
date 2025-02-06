@@ -1,114 +1,306 @@
-<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
-<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Java内存缓存-通过Map定制简单缓存</h3><small class=text-muted>发布于 2019-08-22</small></div><article><h2 id=缓存>缓存</h2><p>在程序中，缓存是一个高速数据存储层，其中存储了数据子集，且通常是短暂性存储，这样日后再次请求此数据时，速度要比访问数据的主存储位置快。通过缓存，可以高效地重用之前检索或计算的数据。</p><h3 id=为什么要用缓存>为什么要用缓存</h3><p><img src=https://ueyao.github.io/image-hosting/blog/2019/8/cache-define-simple-01.png alt></p><h3 id=场景>场景</h3><p>在Java应用中，对于访问频率高，更新少的数据，通常的方案是将这类数据加入缓存中，相对从数据库中读取，读缓存效率会有很大提升。</p><p>在集群环境下，常用的分布式缓存有Redis、Memcached等。但在某些业务场景上，可能不需要去搭建一套复杂的分布式缓存系统，在单机环境下，通常是会希望使用内部的缓存(LocalCache)。</p><h3 id=方案>方案</h3><ul><li><p>基于JSR107规范自研</p></li><li><p>基于ConcurrentHashMap实现数据缓存</p></li></ul><h4 id=jsr107规范目标>JSR107规范目标</h4><ul><li><p>为应用程序提供缓存Java对象的功能。</p></li><li><p>定义了一套通用的缓存概念和工具。</p></li><li><p>最小化开发人员使用缓存的学习成本。</p></li><li><p>最大化应用程序在使用不同缓存实现之间的可移植性。</p></li><li><p>支持进程内和分布式的缓存实现。</p></li></ul><h4 id=jsr107规范核心概念>JSR107规范核心概念</h4><ul><li><p>Java Caching定义了5个核心接口，分别是CachingProvider, CacheManager, Cache, Entry 和 Expiry。</p></li><li><p>CachingProvider定义了创建、配置、获取、管理和控制多个CacheManager。一个应用可以在运行期访问多个CachingProvider。</p></li><li><p>CacheManager定义了创建、配置、获取、管理和控制多个唯一命名的Cache，这些Cache存在于- CacheManager的上下文中。一个CacheManager仅被一个CachingProvider所拥有。</p></li><li><p>Cache是一个类似Map的数据结构并临时存储以Key为索引的值。一个Cache仅被一个CacheManager所拥有。</p></li><li><p>Entry是一个存储在Cache中的key-value对。</p></li><li><p>每一个存储在Cache中的条目有一个定义的有效期，即Expiry Duration。</p></li></ul><p>一旦超过这个时间，条目为过期的状态。一旦过期，条目将不可访问、更新和删除。缓存有效期可以通过ExpiryPolicy设置。</p><h3 id=小例子>小例子</h3><p>使用Map来实现一个简单的缓存功能</p><blockquote><p>MapCacheDemo.java</p></blockquote><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.cache.java;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.lang.ref.SoftReference;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.Optional;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.concurrent.ConcurrentHashMap;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e> * @author simon
-</span></span></span><span style=display:flex><span><span style=color:#75715e> * 用map实现一个简单的缓存功能
-</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MapCacheDemo</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * 使用  ConcurrentHashMap，线程安全的要求。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * 我使用SoftReference &lt;Object&gt;  作为映射值，因为软引用可以保证在抛出OutOfMemory之前，如果缺少内存，将删除引用的对象。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * 在构造函数中，我创建了一个守护程序线程，每5秒扫描一次并清理过期的对象。
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> <span style=color:#66d9ef>int</span> CLEAN_UP_PERIOD_IN_SEC <span style=color:#f92672>=</span> 5;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> ConcurrentHashMap<span style=color:#f92672>&lt;</span>String, SoftReference<span style=color:#f92672>&lt;</span>CacheObject<span style=color:#f92672>&gt;&gt;</span> cache <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ConcurrentHashMap<span style=color:#f92672>&lt;&gt;</span>();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>MapCacheDemo</span>() {
-</span></span><span style=display:flex><span>        Thread cleanerThread <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Thread(() <span style=color:#f92672>-&gt;</span> {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>while</span> (<span style=color:#f92672>!</span>Thread.<span style=color:#a6e22e>currentThread</span>().<span style=color:#a6e22e>isInterrupted</span>()) {
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>try</span> {
-</span></span><span style=display:flex><span>                    Thread.<span style=color:#a6e22e>sleep</span>(CLEAN_UP_PERIOD_IN_SEC <span style=color:#f92672>*</span> 1000);
-</span></span><span style=display:flex><span>                    cache.<span style=color:#a6e22e>entrySet</span>().<span style=color:#a6e22e>removeIf</span>(entry <span style=color:#f92672>-&gt;</span>
-</span></span><span style=display:flex><span>                            Optional.<span style=color:#a6e22e>ofNullable</span>(entry.<span style=color:#a6e22e>getValue</span>())
-</span></span><span style=display:flex><span>                                    .<span style=color:#a6e22e>map</span>(SoftReference::get)
-</span></span><span style=display:flex><span>                                    .<span style=color:#a6e22e>map</span>(CacheObject::isExpired)
-</span></span><span style=display:flex><span>                                    .<span style=color:#a6e22e>orElse</span>(<span style=color:#66d9ef>false</span>));
-</span></span><span style=display:flex><span>                } <span style=color:#66d9ef>catch</span> (InterruptedException e) {
-</span></span><span style=display:flex><span>                    Thread.<span style=color:#a6e22e>currentThread</span>().<span style=color:#a6e22e>interrupt</span>();
-</span></span><span style=display:flex><span>                }
-</span></span><span style=display:flex><span>            }
-</span></span><span style=display:flex><span>        });
-</span></span><span style=display:flex><span>        cleanerThread.<span style=color:#a6e22e>setDaemon</span>(<span style=color:#66d9ef>true</span>);
-</span></span><span style=display:flex><span>        cleanerThread.<span style=color:#a6e22e>start</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>add</span>(String key, Object value, <span style=color:#66d9ef>long</span> periodInMillis) {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (key <span style=color:#f92672>==</span> <span style=color:#66d9ef>null</span>) {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span>;
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (value <span style=color:#f92672>==</span> <span style=color:#66d9ef>null</span>) {
-</span></span><span style=display:flex><span>            cache.<span style=color:#a6e22e>remove</span>(key);
-</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>long</span> expiryTime <span style=color:#f92672>=</span> System.<span style=color:#a6e22e>currentTimeMillis</span>() <span style=color:#f92672>+</span> periodInMillis;
-</span></span><span style=display:flex><span>            cache.<span style=color:#a6e22e>put</span>(key, <span style=color:#66d9ef>new</span> SoftReference<span style=color:#f92672>&lt;&gt;</span>(<span style=color:#66d9ef>new</span> CacheObject(value, expiryTime)));
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>remove</span>(String key) {
-</span></span><span style=display:flex><span>        cache.<span style=color:#a6e22e>remove</span>(key);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> Object <span style=color:#a6e22e>get</span>(String key) {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> Optional.<span style=color:#a6e22e>ofNullable</span>(cache.<span style=color:#a6e22e>get</span>(key)).<span style=color:#a6e22e>map</span>(SoftReference::get).<span style=color:#a6e22e>filter</span>(cacheObject <span style=color:#f92672>-&gt;</span> <span style=color:#f92672>!</span>cacheObject.<span style=color:#a6e22e>isExpired</span>()).<span style=color:#a6e22e>map</span>(CacheObject::getValue).<span style=color:#a6e22e>orElse</span>(<span style=color:#66d9ef>null</span>);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>clear</span>() {
-</span></span><span style=display:flex><span>        cache.<span style=color:#a6e22e>clear</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>long</span> <span style=color:#a6e22e>size</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> cache.<span style=color:#a6e22e>entrySet</span>().<span style=color:#a6e22e>stream</span>().<span style=color:#a6e22e>filter</span>(entry <span style=color:#f92672>-&gt;</span> Optional.<span style=color:#a6e22e>ofNullable</span>(entry.<span style=color:#a6e22e>getValue</span>()).<span style=color:#a6e22e>map</span>(SoftReference::get).<span style=color:#a6e22e>map</span>(cacheObject <span style=color:#f92672>-&gt;</span> <span style=color:#f92672>!</span>cacheObject.<span style=color:#a6e22e>isExpired</span>()).<span style=color:#a6e22e>orElse</span>(<span style=color:#66d9ef>false</span>)).<span style=color:#a6e22e>count</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * 缓存对象value
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CacheObject</span> {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Object value;
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>long</span> expiryTime;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#a6e22e>CacheObject</span>(Object value, <span style=color:#66d9ef>long</span> expiryTime) {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>value</span> <span style=color:#f92672>=</span> value;
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>expiryTime</span> <span style=color:#f92672>=</span> expiryTime;
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>isExpired</span>() {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> System.<span style=color:#a6e22e>currentTimeMillis</span>() <span style=color:#f92672>&gt;</span> expiryTime;
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> Object <span style=color:#a6e22e>getValue</span>() {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> value;
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setValue</span>(Object value) {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>value</span> <span style=color:#f92672>=</span> value;
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><blockquote><p>代码测试类MapCacheDemoTests.java</p></blockquote><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao.cache.java;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MapCacheDemoTests</span> {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> InterruptedException {
-</span></span><span style=display:flex><span>        MapCacheDemo mapCacheDemo <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> MapCacheDemo();
-</span></span><span style=display:flex><span>        mapCacheDemo.<span style=color:#a6e22e>add</span>(<span style=color:#e6db74>&#34;uid_10001&#34;</span>, <span style=color:#e6db74>&#34;{1}&#34;</span>, 5 <span style=color:#f92672>*</span> 1000);
-</span></span><span style=display:flex><span>        mapCacheDemo.<span style=color:#a6e22e>add</span>(<span style=color:#e6db74>&#34;uid_10002&#34;</span>, <span style=color:#e6db74>&#34;{2}&#34;</span>, 5 <span style=color:#f92672>*</span> 1000);
-</span></span><span style=display:flex><span>        mapCacheDemo.<span style=color:#a6e22e>add</span>(<span style=color:#e6db74>&#34;uid_10003&#34;</span>, <span style=color:#e6db74>&#34;{3}&#34;</span>, 5 <span style=color:#f92672>*</span> 1000);
-</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;从缓存中取出值:&#34;</span> <span style=color:#f92672>+</span> mapCacheDemo.<span style=color:#a6e22e>get</span>(<span style=color:#e6db74>&#34;uid_10001&#34;</span>));
-</span></span><span style=display:flex><span>        Thread.<span style=color:#a6e22e>sleep</span>(5000L);
-</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;5秒钟过后&#34;</span>);
-</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;从缓存中取出值:&#34;</span> <span style=color:#f92672>+</span> mapCacheDemo.<span style=color:#a6e22e>get</span>(<span style=color:#e6db74>&#34;uid_10001&#34;</span>));
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// 5秒后数据自动清除了~</span>
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
-|
-<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
-| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
+<!doctype html>
+<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>薛尧的博客</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/theme.min.css">
+
+    
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/custom.min.css">
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../../" class="text-decoration-none">
+                    
+                        薛尧
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Java Developer | Short Video Creator
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/flowstone" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
+                            <i class="fas fa-at fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Java内存缓存-通过Map定制简单缓存</h3>
+            
+            <small class="text-muted">发布于 2019-08-22</small>
+        </div>
+
+        <article>
+            <h2 id="缓存">缓存</h2>
+<p>在程序中，缓存是一个高速数据存储层，其中存储了数据子集，且通常是短暂性存储，这样日后再次请求此数据时，速度要比访问数据的主存储位置快。通过缓存，可以高效地重用之前检索或计算的数据。</p>
+<h3 id="为什么要用缓存">为什么要用缓存</h3>
+<p><img src="https://ueyao.github.io/image-hosting/blog/2019/8/cache-define-simple-01.png" alt=""></p>
+<h3 id="场景">场景</h3>
+<p>在Java应用中，对于访问频率高，更新少的数据，通常的方案是将这类数据加入缓存中，相对从数据库中读取，读缓存效率会有很大提升。</p>
+<p>在集群环境下，常用的分布式缓存有Redis、Memcached等。但在某些业务场景上，可能不需要去搭建一套复杂的分布式缓存系统，在单机环境下，通常是会希望使用内部的缓存(LocalCache)。</p>
+<h3 id="方案">方案</h3>
+<ul>
+<li>
+<p>基于JSR107规范自研</p>
+</li>
+<li>
+<p>基于ConcurrentHashMap实现数据缓存</p>
+</li>
+</ul>
+<h4 id="jsr107规范目标">JSR107规范目标</h4>
+<ul>
+<li>
+<p>为应用程序提供缓存Java对象的功能。</p>
+</li>
+<li>
+<p>定义了一套通用的缓存概念和工具。</p>
+</li>
+<li>
+<p>最小化开发人员使用缓存的学习成本。</p>
+</li>
+<li>
+<p>最大化应用程序在使用不同缓存实现之间的可移植性。</p>
+</li>
+<li>
+<p>支持进程内和分布式的缓存实现。</p>
+</li>
+</ul>
+<h4 id="jsr107规范核心概念">JSR107规范核心概念</h4>
+<ul>
+<li>
+<p>Java Caching定义了5个核心接口，分别是CachingProvider, CacheManager, Cache, Entry 和 Expiry。</p>
+</li>
+<li>
+<p>CachingProvider定义了创建、配置、获取、管理和控制多个CacheManager。一个应用可以在运行期访问多个CachingProvider。</p>
+</li>
+<li>
+<p>CacheManager定义了创建、配置、获取、管理和控制多个唯一命名的Cache，这些Cache存在于- CacheManager的上下文中。一个CacheManager仅被一个CachingProvider所拥有。</p>
+</li>
+<li>
+<p>Cache是一个类似Map的数据结构并临时存储以Key为索引的值。一个Cache仅被一个CacheManager所拥有。</p>
+</li>
+<li>
+<p>Entry是一个存储在Cache中的key-value对。</p>
+</li>
+<li>
+<p>每一个存储在Cache中的条目有一个定义的有效期，即Expiry Duration。</p>
+</li>
+</ul>
+<p>一旦超过这个时间，条目为过期的状态。一旦过期，条目将不可访问、更新和删除。缓存有效期可以通过ExpiryPolicy设置。</p>
+<h3 id="小例子">小例子</h3>
+<p>使用Map来实现一个简单的缓存功能</p>
+<blockquote>
+<p>MapCacheDemo.java</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.cache.java;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.ref.SoftReference;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Optional;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.ConcurrentHashMap;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * @author simon
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * 用map实现一个简单的缓存功能
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MapCacheDemo</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 使用  ConcurrentHashMap，线程安全的要求。
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 我使用SoftReference &lt;Object&gt;  作为映射值，因为软引用可以保证在抛出OutOfMemory之前，如果缺少内存，将删除引用的对象。
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 在构造函数中，我创建了一个守护程序线程，每5秒扫描一次并清理过期的对象。
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> CLEAN_UP_PERIOD_IN_SEC <span style="color:#f92672">=</span> 5;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ConcurrentHashMap<span style="color:#f92672">&lt;</span>String, SoftReference<span style="color:#f92672">&lt;</span>CacheObject<span style="color:#f92672">&gt;&gt;</span> cache <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">MapCacheDemo</span>() {
+</span></span><span style="display:flex;"><span>        Thread cleanerThread <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Thread(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">isInterrupted</span>()) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>                    Thread.<span style="color:#a6e22e">sleep</span>(CLEAN_UP_PERIOD_IN_SEC <span style="color:#f92672">*</span> 1000);
+</span></span><span style="display:flex;"><span>                    cache.<span style="color:#a6e22e">entrySet</span>().<span style="color:#a6e22e">removeIf</span>(entry <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                            Optional.<span style="color:#a6e22e">ofNullable</span>(entry.<span style="color:#a6e22e">getValue</span>())
+</span></span><span style="display:flex;"><span>                                    .<span style="color:#a6e22e">map</span>(SoftReference::get)
+</span></span><span style="display:flex;"><span>                                    .<span style="color:#a6e22e">map</span>(CacheObject::isExpired)
+</span></span><span style="display:flex;"><span>                                    .<span style="color:#a6e22e">orElse</span>(<span style="color:#66d9ef">false</span>));
+</span></span><span style="display:flex;"><span>                } <span style="color:#66d9ef">catch</span> (InterruptedException e) {
+</span></span><span style="display:flex;"><span>                    Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">interrupt</span>();
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>        cleanerThread.<span style="color:#a6e22e">setDaemon</span>(<span style="color:#66d9ef">true</span>);
+</span></span><span style="display:flex;"><span>        cleanerThread.<span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">add</span>(String key, Object value, <span style="color:#66d9ef">long</span> periodInMillis) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (key <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (value <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            cache.<span style="color:#a6e22e">remove</span>(key);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">long</span> expiryTime <span style="color:#f92672">=</span> System.<span style="color:#a6e22e">currentTimeMillis</span>() <span style="color:#f92672">+</span> periodInMillis;
+</span></span><span style="display:flex;"><span>            cache.<span style="color:#a6e22e">put</span>(key, <span style="color:#66d9ef">new</span> SoftReference<span style="color:#f92672">&lt;&gt;</span>(<span style="color:#66d9ef">new</span> CacheObject(value, expiryTime)));
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">remove</span>(String key) {
+</span></span><span style="display:flex;"><span>        cache.<span style="color:#a6e22e">remove</span>(key);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">get</span>(String key) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Optional.<span style="color:#a6e22e">ofNullable</span>(cache.<span style="color:#a6e22e">get</span>(key)).<span style="color:#a6e22e">map</span>(SoftReference::get).<span style="color:#a6e22e">filter</span>(cacheObject <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">!</span>cacheObject.<span style="color:#a6e22e">isExpired</span>()).<span style="color:#a6e22e">map</span>(CacheObject::getValue).<span style="color:#a6e22e">orElse</span>(<span style="color:#66d9ef">null</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">clear</span>() {
+</span></span><span style="display:flex;"><span>        cache.<span style="color:#a6e22e">clear</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">size</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cache.<span style="color:#a6e22e">entrySet</span>().<span style="color:#a6e22e">stream</span>().<span style="color:#a6e22e">filter</span>(entry <span style="color:#f92672">-&gt;</span> Optional.<span style="color:#a6e22e">ofNullable</span>(entry.<span style="color:#a6e22e">getValue</span>()).<span style="color:#a6e22e">map</span>(SoftReference::get).<span style="color:#a6e22e">map</span>(cacheObject <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">!</span>cacheObject.<span style="color:#a6e22e">isExpired</span>()).<span style="color:#a6e22e">orElse</span>(<span style="color:#66d9ef">false</span>)).<span style="color:#a6e22e">count</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 缓存对象value
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CacheObject</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> Object value;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">long</span> expiryTime;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">CacheObject</span>(Object value, <span style="color:#66d9ef">long</span> expiryTime) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> value;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">expiryTime</span> <span style="color:#f92672">=</span> expiryTime;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isExpired</span>() {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> System.<span style="color:#a6e22e">currentTimeMillis</span>() <span style="color:#f92672">&gt;</span> expiryTime;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">getValue</span>() {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> value;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setValue</span>(Object value) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> value;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p>代码测试类MapCacheDemoTests.java</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao.cache.java;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MapCacheDemoTests</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> InterruptedException {
+</span></span><span style="display:flex;"><span>        MapCacheDemo mapCacheDemo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MapCacheDemo();
+</span></span><span style="display:flex;"><span>        mapCacheDemo.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;uid_10001&#34;</span>, <span style="color:#e6db74">&#34;{1}&#34;</span>, 5 <span style="color:#f92672">*</span> 1000);
+</span></span><span style="display:flex;"><span>        mapCacheDemo.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;uid_10002&#34;</span>, <span style="color:#e6db74">&#34;{2}&#34;</span>, 5 <span style="color:#f92672">*</span> 1000);
+</span></span><span style="display:flex;"><span>        mapCacheDemo.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;uid_10003&#34;</span>, <span style="color:#e6db74">&#34;{3}&#34;</span>, 5 <span style="color:#f92672">*</span> 1000);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;从缓存中取出值:&#34;</span> <span style="color:#f92672">+</span> mapCacheDemo.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;uid_10001&#34;</span>));
+</span></span><span style="display:flex;"><span>        Thread.<span style="color:#a6e22e">sleep</span>(5000L);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;5秒钟过后&#34;</span>);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;从缓存中取出值:&#34;</span> <span style="color:#f92672">+</span> mapCacheDemo.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;uid_10001&#34;</span>));
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 5秒后数据自动清除了~</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+        </article>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+        &copy; Copyright 2024
+        
+        |
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
+        <br />
+        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
+        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+        <br />
+
+    </small>
+</footer></body>
+</html>

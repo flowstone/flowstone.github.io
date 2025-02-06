@@ -1,80 +1,274 @@
-<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
-<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Spring自定义注解详解</h3><small class=text-muted>发布于 2019-02-13</small></div><article><p>下面是RequestBody注解源码</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Target</span>(ElementType.<span style=color:#a6e22e>PARAMETER</span>)
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@Retention</span>(RetentionPolicy.<span style=color:#a6e22e>RUNTIME</span>)
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@Documented</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#a6e22e>@interface</span> RequestBody {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>	 * Whether body content is required.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>	 * &lt;p&gt;Default is {@code true}, leading to an exception thrown in case
-</span></span></span><span style=display:flex><span><span style=color:#75715e>	 * there is no body content. Switch this to {@code false} if you prefer
-</span></span></span><span style=display:flex><span><span style=color:#75715e>	 * {@code null} to be passed when the body content is {@code null}.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>	 * @since 3.2
-</span></span></span><span style=display:flex><span><span style=color:#75715e>	 */</span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>required</span>() <span style=color:#66d9ef>default</span> <span style=color:#66d9ef>true</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>现在讲一讲@RequestBody注解中用到其它注解</p><p>@Target注解</p><p>从字面上理解这个就是目标的意思，说明@RequestBody注解是作用于哪个上面</p><p>ElementType</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>enum</span> ElementType {
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Class, interface (including annotation type), or enum declaration */</span>
-</span></span><span style=display:flex><span>    TYPE,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Field declaration (includes enum constants) */</span>
-</span></span><span style=display:flex><span>    FIELD,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Method declaration */</span>
-</span></span><span style=display:flex><span>    METHOD,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Formal parameter declaration */</span>
-</span></span><span style=display:flex><span>    PARAMETER,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Constructor declaration */</span>
-</span></span><span style=display:flex><span>    CONSTRUCTOR,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Local variable declaration */</span>
-</span></span><span style=display:flex><span>    LOCAL_VARIABLE,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Annotation type declaration */</span>
-</span></span><span style=display:flex><span>    ANNOTATION_TYPE,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/** Package declaration */</span>
-</span></span><span style=display:flex><span>    PACKAGE,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Type parameter declaration
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @since 1.8
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    TYPE_PARAMETER,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Use of a type
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @since 1.8
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    TYPE_USE
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>它的值有下列</p><table><thead><tr><th>值</th><th>说明(适用范围)</th></tr></thead><tbody><tr><td>TYPE</td><td>类，接口(包括注解类型)，枚举</td></tr><tr><td>FIELD</td><td>字段</td></tr><tr><td>METHOD</td><td>方法</td></tr><tr><td>PARAMETER</td><td>参数</td></tr><tr><td>CONSTRUCTOR</td><td>构造方法</td></tr><tr><td>LOCAL_VARIABLE</td><td>局部变量</td></tr><tr><td>ANNOTATION_TYPE</td><td>注解类型</td></tr><tr><td>PACKAGE</td><td>包</td></tr><tr><td>TYPE_PARAMETER</td><td>类型参数，从1.8开始</td></tr><tr><td>TYPE_USE</td><td>类型的使用，从1.8开始</td></tr></tbody></table><p>@Retention注解</p><p>从字面上理解这个就是保留的意思，说明@RequestBody注解是在哪些环境下保留此注解</p><p>RetentionPolicy</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>enum</span> RetentionPolicy {
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Annotations are to be discarded by the compiler.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    SOURCE,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Annotations are to be recorded in the class file by the compiler
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * but need not be retained by the VM at run time.  This is the default
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * behavior.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    CLASS,
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Annotations are to be recorded in the class file by the compiler and
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * retained by the VM at run time, so they may be read reflectively.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @see java.lang.reflect.AnnotatedElement
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    RUNTIME
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><ul><li>SOURCE 在编译时不保留此注解，此注解存在源代码中|</li><li>CLASS 在编译时保留注解于class文件中，VM运行时不需要保留，此值为默认值|</li><li>RUNTIME 在编译时保留注解于class文件中，VM运行时保留此注解，所以它们可以被反射阅读|</li></ul><p>@Documented注解</p><p>此注解说明，如果生成javadoc文档时，会将该注解加入到文档中。</p></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
-|
-<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
-| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
+<!doctype html>
+<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>薛尧的博客</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/theme.min.css">
+
+    
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/custom.min.css">
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../../" class="text-decoration-none">
+                    
+                        薛尧
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Java Developer | Short Video Creator
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/flowstone" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
+                            <i class="fas fa-at fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Spring自定义注解详解</h3>
+            
+            <small class="text-muted">发布于 2019-02-13</small>
+        </div>
+
+        <article>
+            <p>下面是RequestBody注解源码</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Target</span>(ElementType.<span style="color:#a6e22e">PARAMETER</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Retention</span>(RetentionPolicy.<span style="color:#a6e22e">RUNTIME</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Documented</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> RequestBody {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	 * Whether body content is required.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	 * &lt;p&gt;Default is {@code true}, leading to an exception thrown in case
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	 * there is no body content. Switch this to {@code false} if you prefer
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	 * {@code null} to be passed when the body content is {@code null}.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	 * @since 3.2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	 */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">required</span>() <span style="color:#66d9ef">default</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>现在讲一讲@RequestBody注解中用到其它注解</p>
+<p>@Target注解</p>
+<p>从字面上理解这个就是目标的意思，说明@RequestBody注解是作用于哪个上面</p>
+<p>ElementType</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> ElementType {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Class, interface (including annotation type), or enum declaration */</span>
+</span></span><span style="display:flex;"><span>    TYPE,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Field declaration (includes enum constants) */</span>
+</span></span><span style="display:flex;"><span>    FIELD,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Method declaration */</span>
+</span></span><span style="display:flex;"><span>    METHOD,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Formal parameter declaration */</span>
+</span></span><span style="display:flex;"><span>    PARAMETER,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Constructor declaration */</span>
+</span></span><span style="display:flex;"><span>    CONSTRUCTOR,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Local variable declaration */</span>
+</span></span><span style="display:flex;"><span>    LOCAL_VARIABLE,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Annotation type declaration */</span>
+</span></span><span style="display:flex;"><span>    ANNOTATION_TYPE,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/** Package declaration */</span>
+</span></span><span style="display:flex;"><span>    PACKAGE,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * Type parameter declaration
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @since 1.8
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    TYPE_PARAMETER,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * Use of a type
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @since 1.8
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    TYPE_USE
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>它的值有下列</p>
+<table>
+  <thead>
+      <tr>
+          <th>值</th>
+          <th>说明(适用范围)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>TYPE</td>
+          <td>类，接口(包括注解类型)，枚举</td>
+      </tr>
+      <tr>
+          <td>FIELD</td>
+          <td>字段</td>
+      </tr>
+      <tr>
+          <td>METHOD</td>
+          <td>方法</td>
+      </tr>
+      <tr>
+          <td>PARAMETER</td>
+          <td>参数</td>
+      </tr>
+      <tr>
+          <td>CONSTRUCTOR</td>
+          <td>构造方法</td>
+      </tr>
+      <tr>
+          <td>LOCAL_VARIABLE</td>
+          <td>局部变量</td>
+      </tr>
+      <tr>
+          <td>ANNOTATION_TYPE</td>
+          <td>注解类型</td>
+      </tr>
+      <tr>
+          <td>PACKAGE</td>
+          <td>包</td>
+      </tr>
+      <tr>
+          <td>TYPE_PARAMETER</td>
+          <td>类型参数，从1.8开始</td>
+      </tr>
+      <tr>
+          <td>TYPE_USE</td>
+          <td>类型的使用，从1.8开始</td>
+      </tr>
+  </tbody>
+</table>
+<p>@Retention注解</p>
+<p>从字面上理解这个就是保留的意思，说明@RequestBody注解是在哪些环境下保留此注解</p>
+<p>RetentionPolicy</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> RetentionPolicy {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * Annotations are to be discarded by the compiler.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    SOURCE,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * Annotations are to be recorded in the class file by the compiler
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * but need not be retained by the VM at run time.  This is the default
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * behavior.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    CLASS,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * Annotations are to be recorded in the class file by the compiler and
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * retained by the VM at run time, so they may be read reflectively.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @see java.lang.reflect.AnnotatedElement
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    RUNTIME
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li>SOURCE  在编译时不保留此注解，此注解存在源代码中|</li>
+<li>CLASS   在编译时保留注解于class文件中，VM运行时不需要保留，此值为默认值|</li>
+<li>RUNTIME 在编译时保留注解于class文件中，VM运行时保留此注解，所以它们可以被反射阅读|</li>
+</ul>
+<p>@Documented注解</p>
+<p>此注解说明，如果生成javadoc文档时，会将该注解加入到文档中。</p>
+
+        </article>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+        &copy; Copyright 2024
+        
+        |
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
+        <br />
+        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
+        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+        <br />
+
+    </small>
+</footer></body>
+</html>

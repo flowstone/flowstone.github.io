@@ -1,30 +1,172 @@
-<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
-<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Spring Cloud入门教程一之Eureka Server</h3><small class=text-muted>发布于 2018-10-13</small></div><article><h3 id=项目环境>项目环境</h3><ul><li>MacOS</li><li>JDK1.8</li><li>IntelliJ IDEA 2018.2</li><li>Maven 3.5.4</li></ul><h3 id=创建项目>创建项目</h3><ul><li>采用Spring Initializr创建项目</li><li>选择Cloud Discovery->Eureka Discovery->项目名称</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> me.xueyao;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.boot.SpringApplication;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.boot.autoconfigure.SpringBootApplication;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@SpringBootApplication</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>//注解该类是EurekaServer服务</span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@EnableEurekaServer</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>EurekaServerApplication</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) {
-</span></span><span style=display:flex><span>        SpringApplication.<span style=color:#a6e22e>run</span>(EurekaServerApplication.<span style=color:#a6e22e>class</span>, args);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>配置文件application.yml</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span><span style=color:#f92672>eureka</span>:
-</span></span><span style=display:flex><span>  <span style=color:#f92672>client</span>:
-</span></span><span style=display:flex><span>    <span style=color:#f92672>service-url</span>:
-</span></span><span style=display:flex><span>      <span style=color:#f92672>defaultZone</span>: <span style=color:#ae81ff>http://localhost:8762/eureka/</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>register-with-eureka</span>: <span style=color:#66d9ef>false</span>  <span style=color:#75715e>#是否在eureka中注册，false不用注册</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>fetch-registry</span>: <span style=color:#66d9ef>false</span> <span style=color:#75715e>#是否发现注册，不注册</span>
-</span></span><span style=display:flex><span>  <span style=color:#f92672>server</span>:
-</span></span><span style=display:flex><span>    <span style=color:#f92672>enable-self-preservation: false # false表示在此eureka服务器中关闭自我保护模式#server:#  port</span>: <span style=color:#f92672>8761  #服务端口spring</span>:
-</span></span><span style=display:flex><span>  <span style=color:#f92672>application</span>:
-</span></span><span style=display:flex><span>    <span style=color:#f92672>name</span>: <span style=color:#ae81ff>eureka-server</span> <span style=color:#75715e>#应用名</span>
-</span></span></code></pre></div><p>启动项目，在浏览器中输入EurekaServer地址http://127.0.0.1:8761,如果页面能正常显示则说明创建Eureka Server成功</p></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
-|
-<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
-| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
+<!doctype html>
+<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>薛尧的博客</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/theme.min.css">
+
+    
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/custom.min.css">
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../../" class="text-decoration-none">
+                    
+                        薛尧
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Java Developer | Short Video Creator
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/flowstone" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
+                            <i class="fas fa-at fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Spring Cloud入门教程一之Eureka Server</h3>
+            
+            <small class="text-muted">发布于 2018-10-13</small>
+        </div>
+
+        <article>
+            <h3 id="项目环境">项目环境</h3>
+<ul>
+<li>MacOS</li>
+<li>JDK1.8</li>
+<li>IntelliJ IDEA 2018.2</li>
+<li>Maven 3.5.4</li>
+</ul>
+<h3 id="创建项目">创建项目</h3>
+<ul>
+<li>采用Spring Initializr创建项目</li>
+<li>选择Cloud Discovery-&gt;Eureka Discovery-&gt;项目名称</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> me.xueyao;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.boot.SpringApplication;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@SpringBootApplication</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//注解该类是EurekaServer服务</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@EnableEurekaServer</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EurekaServerApplication</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) {
+</span></span><span style="display:flex;"><span>        SpringApplication.<span style="color:#a6e22e">run</span>(EurekaServerApplication.<span style="color:#a6e22e">class</span>, args);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>配置文件application.yml</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">eureka</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">client</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">service-url</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">defaultZone</span>: <span style="color:#ae81ff">http://localhost:8762/eureka/</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">register-with-eureka</span>: <span style="color:#66d9ef">false</span>  <span style="color:#75715e">#是否在eureka中注册，false不用注册</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">fetch-registry</span>: <span style="color:#66d9ef">false</span> <span style="color:#75715e">#是否发现注册，不注册</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">enable-self-preservation: false # false表示在此eureka服务器中关闭自我保护模式#server:#  port</span>: <span style="color:#f92672">8761  #服务端口spring</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">application</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">name</span>: <span style="color:#ae81ff">eureka-server</span> <span style="color:#75715e">#应用名</span>
+</span></span></code></pre></div><p>启动项目，在浏览器中输入EurekaServer地址http://127.0.0.1:8761,如果页面能正常显示则说明创建Eureka Server成功</p>
+
+        </article>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+        &copy; Copyright 2024
+        
+        |
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
+        <br />
+        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
+        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+        <br />
+
+    </small>
+</footer></body>
+</html>

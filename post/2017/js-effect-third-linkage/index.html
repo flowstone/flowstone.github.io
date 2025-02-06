@@ -1,164 +1,267 @@
-<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
-<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>AJAX省市县三级联动的实现</h3><small class=text-muted>发布于 2017-09-14</small></div><article><p>省市县数据</p><p>本例子中省市县数据保存在MySQL数据库中,部分数据截图如下:</p><p><img src=https://ueyao.github.io/image-hosting/blog/2017/09/2017-09-14_173943.png alt=省市县数据></p><p>从数据库中读取数据</p><p>1、导入需要的jar包</p><p><img src=https://ueyao.github.io/image-hosting/blog/2017/09/2017-09-14_174657.png alt=所需jar包></p><p>2、连接池配置文件</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;c3p0-config&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- 默认配置，如果没有指定则使用这个配置 --&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;default-config&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;driverClass&#34;</span><span style=color:#f92672>&gt;</span>com.mysql.jdbc.Driver<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;jdbcUrl&#34;</span><span style=color:#f92672>&gt;</span>jdbc:mysql://127.0.0.1:3306/test<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;user&#34;</span><span style=color:#f92672>&gt;</span>root<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;password&#34;</span><span style=color:#f92672>&gt;</span>数据库密码<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;checkoutTimeout&#34;</span><span style=color:#f92672>&gt;</span>30000<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;idleConnectionTestPeriod&#34;</span><span style=color:#f92672>&gt;</span>30<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;initialPoolSize&#34;</span><span style=color:#f92672>&gt;</span>10<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;maxIdleTime&#34;</span><span style=color:#f92672>&gt;</span>30<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;maxPoolSize&#34;</span><span style=color:#f92672>&gt;</span>100<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;minPoolSize&#34;</span><span style=color:#f92672>&gt;</span>10<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;maxStatements&#34;</span><span style=color:#f92672>&gt;</span>200<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;user-overrides</span> <span style=color:#a6e22e>user=</span><span style=color:#e6db74>&#34;test-user&#34;</span><span style=color:#f92672>&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;maxPoolSize&#34;</span><span style=color:#f92672>&gt;</span>10<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;minPoolSize&#34;</span><span style=color:#f92672>&gt;</span>1<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;property</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;maxStatements&#34;</span><span style=color:#f92672>&gt;</span>0<span style=color:#f92672>&lt;/property&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/user-overrides&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/default-config&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/c3p0-config&gt;</span>
-</span></span></code></pre></div><p>3、JDBCUtils工具类文件</p><p>通用JDBCUtils工具类文件,使用时直接引入</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> org.xueyao.ajax.utils;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.sql.Connection;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.sql.ResultSet;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.sql.SQLException;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.sql.Statement;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.sql.DataSource;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.tomcat.jni.Thread;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.mchange.v2.c3p0.ComboPooledDataSource;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JDBCUtils</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> ComboPooledDataSource comboPooledDataSource <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ComboPooledDataSource();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//使用ThreadLocal存取删链接对象</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> ThreadLocal<span style=color:#f92672>&lt;</span>Connection<span style=color:#f92672>&gt;</span> local <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ThreadLocal<span style=color:#f92672>&lt;&gt;</span>();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> Connection <span style=color:#a6e22e>getConnection</span>() <span style=color:#66d9ef>throws</span> SQLException{
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> comboPooledDataSource.<span style=color:#a6e22e>getConnection</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> DataSource <span style=color:#a6e22e>getDataSource</span>(){
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> comboPooledDataSource;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//从ThreadLocal获取链接的方法</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> Connection <span style=color:#a6e22e>getCurrentConnection</span>() <span style=color:#66d9ef>throws</span> SQLException{
-</span></span><span style=display:flex><span>        <span style=color:#75715e>//先从ThreadLocal获取中</span>
-</span></span><span style=display:flex><span>        Connection connection <span style=color:#f92672>=</span> local.<span style=color:#a6e22e>get</span>();
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span>(connection <span style=color:#f92672>!=</span> <span style=color:#66d9ef>null</span>){
-</span></span><span style=display:flex><span>            System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;从local获取数据：&#34;</span><span style=color:#f92672>+</span>connection);
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> connection;
-</span></span><span style=display:flex><span>        }<span style=color:#66d9ef>else</span>{
-</span></span><span style=display:flex><span>            <span style=color:#75715e>//如果没有，在从链接池获取，存入ThreadLocal中</span>
-</span></span><span style=display:flex><span>            Connection conn <span style=color:#f92672>=</span> comboPooledDataSource.<span style=color:#a6e22e>getConnection</span>();
-</span></span><span style=display:flex><span>            System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;从连接池获取数据：&#34;</span><span style=color:#f92672>+</span>conn);
-</span></span><span style=display:flex><span>            local.<span style=color:#a6e22e>set</span>(conn);
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> conn;
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//开启事务的方法</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>startTransaction</span>() <span style=color:#66d9ef>throws</span> SQLException{
-</span></span><span style=display:flex><span>        Connection connection <span style=color:#f92672>=</span> getCurrentConnection();
-</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(connection);
-</span></span><span style=display:flex><span>        connection.<span style=color:#a6e22e>setAutoCommit</span>(<span style=color:#66d9ef>false</span>);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//提交事务的方法</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>commit</span>() <span style=color:#66d9ef>throws</span> SQLException{
-</span></span><span style=display:flex><span>        Connection connection <span style=color:#f92672>=</span> getCurrentConnection();
-</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(connection);
-</span></span><span style=display:flex><span>        connection.<span style=color:#a6e22e>commit</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//回滚事务的方法</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>rollback</span>() <span style=color:#66d9ef>throws</span> SQLException{
-</span></span><span style=display:flex><span>        Connection connection <span style=color:#f92672>=</span> getCurrentConnection();
-</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(connection);
-</span></span><span style=display:flex><span>        connection.<span style=color:#a6e22e>rollback</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//释放资源的方法</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>close</span>() <span style=color:#66d9ef>throws</span> SQLException{
-</span></span><span style=display:flex><span>        Connection connection <span style=color:#f92672>=</span> getCurrentConnection();
-</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(connection);
-</span></span><span style=display:flex><span>        local.<span style=color:#a6e22e>remove</span>();
-</span></span><span style=display:flex><span>        connection.<span style=color:#a6e22e>close</span>();
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>4、创建JavaBean文件</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> org.xueyao.ajax.domain;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Province</span> {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> codeid;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>int</span> parentid;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String cityName;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>getCodeid</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> codeid;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setCodeid</span>(<span style=color:#66d9ef>int</span> codeid) {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>codeid</span> <span style=color:#f92672>=</span> codeid;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>getParentid</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> parentid;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setParentid</span>(<span style=color:#66d9ef>int</span> parentid) {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>parentid</span> <span style=color:#f92672>=</span> parentid;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>getCityName</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> cityName;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setCityName</span>(String cityName) {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>cityName</span> <span style=color:#f92672>=</span> cityName;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>toString</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;Province [codeid=&#34;</span> <span style=color:#f92672>+</span> codeid <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;, parentid=&#34;</span> <span style=color:#f92672>+</span> parentid
-</span></span><span style=display:flex><span>                <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;, cityName=&#34;</span> <span style=color:#f92672>+</span> cityName <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;]&#34;</span>;
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>5、创建Servlet文件,获取省市县数据</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> org.xueyao.ajax.linkage;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.io.IOException;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.sql.SQLException;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.List;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.servlet.ServletException;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.servlet.http.HttpServlet;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.servlet.http.HttpServletRequest;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.servlet.http.HttpServletResponse;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.commons.dbutils.QueryRunner;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.commons.dbutils.handlers.BeanListHandler;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.xueyao.ajax.domain.Province;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.xueyao.ajax.utils.JDBCUtils;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> flexjson.JSONSerializer;
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>GetDataServlet</span> <span style=color:#66d9ef>extends</span> HttpServlet {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> <span style=color:#66d9ef>long</span> serialVersionUID <span style=color:#f92672>=</span> 1L;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>doGet</span>(HttpServletRequest request,
-</span></span><span style=display:flex><span>            HttpServletResponse response) <span style=color:#66d9ef>throws</span> ServletException, IOException {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> parentid <span style=color:#f92672>=</span> Integer.<span style=color:#a6e22e>parseInt</span>(request.<span style=color:#a6e22e>getParameter</span>(<span style=color:#e6db74>&#34;parentid&#34;</span>));
-</span></span><span style=display:flex><span>        String sql <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;SELECT * FROM province WHERE parentid=?&#34;</span>;
-</span></span><span style=display:flex><span>        QueryRunner qr <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> QueryRunner(JDBCUtils.<span style=color:#a6e22e>getDataSource</span>());
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>try</span> {
-</span></span><span style=display:flex><span>            List<span style=color:#f92672>&lt;</span>Province<span style=color:#f92672>&gt;</span> list <span style=color:#f92672>=</span> qr.<span style=color:#a6e22e>query</span>(sql, <span style=color:#66d9ef>new</span> BeanListHandler<span style=color:#f92672>&lt;</span>Province<span style=color:#f92672>&gt;</span>(Province.<span style=color:#a6e22e>class</span>), parentid);
-</span></span><span style=display:flex><span>            <span style=color:#75715e>//System.out.println(list);</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>//将list集合转换成json格式字符串</span>
-</span></span><span style=display:flex><span>            JSONSerializer jsonSerializer <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> JSONSerializer();
-</span></span><span style=display:flex><span>            String serialize <span style=color:#f92672>=</span> jsonSerializer.<span style=color:#a6e22e>serialize</span>(list);
-</span></span><span style=display:flex><span>            <span style=color:#75715e>//System.out.println(serialize);</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>//向页面输入字符串数据</span>
-</span></span><span style=display:flex><span>            response.<span style=color:#a6e22e>setContentType</span>(<span style=color:#e6db74>&#34;text/html;charset=utf-8&#34;</span>);
-</span></span><span style=display:flex><span>            response.<span style=color:#a6e22e>getWriter</span>().<span style=color:#a6e22e>write</span>(serialize);
-</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>catch</span> (SQLException e) {
-</span></span><span style=display:flex><span>            <span style=color:#75715e>// TODO Auto-generated catch block</span>
-</span></span><span style=display:flex><span>            e.<span style=color:#a6e22e>printStackTrace</span>();
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>doPost</span>(HttpServletRequest request,
-</span></span><span style=display:flex><span>            HttpServletResponse response) <span style=color:#66d9ef>throws</span> ServletException, IOException {
-</span></span><span style=display:flex><span>        doGet(request, response);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>6、从页面显示三级联动</p><pre tabindex=0><code class=language-jsp data-lang=jsp>&lt;%@ page language=&#34;java&#34; contentType=&#34;text/html; charset=UTF-8&#34;
+<!doctype html>
+<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>薛尧的博客</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/theme.min.css">
+
+    
+    
+    
+    
+    <link rel="stylesheet" href="../../../css/custom.min.css">
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../../" class="text-decoration-none">
+                    
+                        薛尧
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Java Developer | Short Video Creator
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="http://github.com/flowstone" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
+                            <i class="fas fa-at fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">AJAX省市县三级联动的实现</h3>
+            
+            <small class="text-muted">发布于 2017-09-14</small>
+        </div>
+
+        <article>
+            <p>省市县数据</p>
+<p>本例子中省市县数据保存在MySQL数据库中,部分数据截图如下:</p>
+<p><img src="https://ueyao.github.io/image-hosting/blog/2017/09/2017-09-14_173943.png" alt="省市县数据"></p>
+<p>从数据库中读取数据</p>
+<p>1、导入需要的jar包</p>
+<p><img src="https://ueyao.github.io/image-hosting/blog/2017/09/2017-09-14_174657.png" alt="所需jar包"></p>
+<p>2、连接池配置文件</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;c3p0-config&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- 默认配置，如果没有指定则使用这个配置 --&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;default-config&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;driverClass&#34;</span><span style="color:#f92672">&gt;</span>com.mysql.jdbc.Driver<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;jdbcUrl&#34;</span><span style="color:#f92672">&gt;</span>jdbc:mysql://127.0.0.1:3306/test<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;user&#34;</span><span style="color:#f92672">&gt;</span>root<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;password&#34;</span><span style="color:#f92672">&gt;</span>数据库密码<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;checkoutTimeout&#34;</span><span style="color:#f92672">&gt;</span>30000<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;idleConnectionTestPeriod&#34;</span><span style="color:#f92672">&gt;</span>30<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;initialPoolSize&#34;</span><span style="color:#f92672">&gt;</span>10<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxIdleTime&#34;</span><span style="color:#f92672">&gt;</span>30<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxPoolSize&#34;</span><span style="color:#f92672">&gt;</span>100<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;minPoolSize&#34;</span><span style="color:#f92672">&gt;</span>10<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxStatements&#34;</span><span style="color:#f92672">&gt;</span>200<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;user-overrides</span> <span style="color:#a6e22e">user=</span><span style="color:#e6db74">&#34;test-user&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxPoolSize&#34;</span><span style="color:#f92672">&gt;</span>10<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;minPoolSize&#34;</span><span style="color:#f92672">&gt;</span>1<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxStatements&#34;</span><span style="color:#f92672">&gt;</span>0<span style="color:#f92672">&lt;/property&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/user-overrides&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/default-config&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/c3p0-config&gt;</span>
+</span></span></code></pre></div><p>3、JDBCUtils工具类文件</p>
+<p>通用JDBCUtils工具类文件,使用时直接引入</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> org.xueyao.ajax.utils;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.Connection;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.ResultSet;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.SQLException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.Statement;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.sql.DataSource;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.apache.tomcat.jni.Thread;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> com.mchange.v2.c3p0.ComboPooledDataSource;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JDBCUtils</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> ComboPooledDataSource comboPooledDataSource <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ComboPooledDataSource();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//使用ThreadLocal存取删链接对象</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> ThreadLocal<span style="color:#f92672">&lt;</span>Connection<span style="color:#f92672">&gt;</span> local <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadLocal<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Connection <span style="color:#a6e22e">getConnection</span>() <span style="color:#66d9ef">throws</span> SQLException{
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> comboPooledDataSource.<span style="color:#a6e22e">getConnection</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> DataSource <span style="color:#a6e22e">getDataSource</span>(){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> comboPooledDataSource;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//从ThreadLocal获取链接的方法</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Connection <span style="color:#a6e22e">getCurrentConnection</span>() <span style="color:#66d9ef">throws</span> SQLException{
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//先从ThreadLocal获取中</span>
+</span></span><span style="display:flex;"><span>        Connection connection <span style="color:#f92672">=</span> local.<span style="color:#a6e22e">get</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(connection <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>){
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;从local获取数据：&#34;</span><span style="color:#f92672">+</span>connection);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> connection;
+</span></span><span style="display:flex;"><span>        }<span style="color:#66d9ef">else</span>{
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//如果没有，在从链接池获取，存入ThreadLocal中</span>
+</span></span><span style="display:flex;"><span>            Connection conn <span style="color:#f92672">=</span> comboPooledDataSource.<span style="color:#a6e22e">getConnection</span>();
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;从连接池获取数据：&#34;</span><span style="color:#f92672">+</span>conn);
+</span></span><span style="display:flex;"><span>            local.<span style="color:#a6e22e">set</span>(conn);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> conn;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//开启事务的方法</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">startTransaction</span>() <span style="color:#66d9ef">throws</span> SQLException{
+</span></span><span style="display:flex;"><span>        Connection connection <span style="color:#f92672">=</span> getCurrentConnection();
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(connection);
+</span></span><span style="display:flex;"><span>        connection.<span style="color:#a6e22e">setAutoCommit</span>(<span style="color:#66d9ef">false</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//提交事务的方法</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">commit</span>() <span style="color:#66d9ef">throws</span> SQLException{
+</span></span><span style="display:flex;"><span>        Connection connection <span style="color:#f92672">=</span> getCurrentConnection();
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(connection);
+</span></span><span style="display:flex;"><span>        connection.<span style="color:#a6e22e">commit</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//回滚事务的方法</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rollback</span>() <span style="color:#66d9ef">throws</span> SQLException{
+</span></span><span style="display:flex;"><span>        Connection connection <span style="color:#f92672">=</span> getCurrentConnection();
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(connection);
+</span></span><span style="display:flex;"><span>        connection.<span style="color:#a6e22e">rollback</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//释放资源的方法</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">close</span>() <span style="color:#66d9ef">throws</span> SQLException{
+</span></span><span style="display:flex;"><span>        Connection connection <span style="color:#f92672">=</span> getCurrentConnection();
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(connection);
+</span></span><span style="display:flex;"><span>        local.<span style="color:#a6e22e">remove</span>();
+</span></span><span style="display:flex;"><span>        connection.<span style="color:#a6e22e">close</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>4、创建JavaBean文件</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> org.xueyao.ajax.domain;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Province</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> codeid;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> parentid;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String cityName;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getCodeid</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> codeid;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setCodeid</span>(<span style="color:#66d9ef">int</span> codeid) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">codeid</span> <span style="color:#f92672">=</span> codeid;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getParentid</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> parentid;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setParentid</span>(<span style="color:#66d9ef">int</span> parentid) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">parentid</span> <span style="color:#f92672">=</span> parentid;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getCityName</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cityName;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setCityName</span>(String cityName) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">cityName</span> <span style="color:#f92672">=</span> cityName;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">toString</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Province [codeid=&#34;</span> <span style="color:#f92672">+</span> codeid <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, parentid=&#34;</span> <span style="color:#f92672">+</span> parentid
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, cityName=&#34;</span> <span style="color:#f92672">+</span> cityName <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;]&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>5、创建Servlet文件,获取省市县数据</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> org.xueyao.ajax.linkage;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.SQLException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.List;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.ServletException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.http.HttpServlet;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.apache.commons.dbutils.QueryRunner;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.apache.commons.dbutils.handlers.BeanListHandler;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.xueyao.ajax.domain.Province;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.xueyao.ajax.utils.JDBCUtils;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> flexjson.JSONSerializer;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GetDataServlet</span> <span style="color:#66d9ef">extends</span> HttpServlet {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> serialVersionUID <span style="color:#f92672">=</span> 1L;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span>(HttpServletRequest request,
+</span></span><span style="display:flex;"><span>            HttpServletResponse response) <span style="color:#66d9ef">throws</span> ServletException, IOException {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> parentid <span style="color:#f92672">=</span> Integer.<span style="color:#a6e22e">parseInt</span>(request.<span style="color:#a6e22e">getParameter</span>(<span style="color:#e6db74">&#34;parentid&#34;</span>));
+</span></span><span style="display:flex;"><span>        String sql <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT * FROM province WHERE parentid=?&#34;</span>;
+</span></span><span style="display:flex;"><span>        QueryRunner qr <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> QueryRunner(JDBCUtils.<span style="color:#a6e22e">getDataSource</span>());
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            List<span style="color:#f92672">&lt;</span>Province<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> qr.<span style="color:#a6e22e">query</span>(sql, <span style="color:#66d9ef">new</span> BeanListHandler<span style="color:#f92672">&lt;</span>Province<span style="color:#f92672">&gt;</span>(Province.<span style="color:#a6e22e">class</span>), parentid);
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//System.out.println(list);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//将list集合转换成json格式字符串</span>
+</span></span><span style="display:flex;"><span>            JSONSerializer jsonSerializer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JSONSerializer();
+</span></span><span style="display:flex;"><span>            String serialize <span style="color:#f92672">=</span> jsonSerializer.<span style="color:#a6e22e">serialize</span>(list);
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//System.out.println(serialize);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//向页面输入字符串数据</span>
+</span></span><span style="display:flex;"><span>            response.<span style="color:#a6e22e">setContentType</span>(<span style="color:#e6db74">&#34;text/html;charset=utf-8&#34;</span>);
+</span></span><span style="display:flex;"><span>            response.<span style="color:#a6e22e">getWriter</span>().<span style="color:#a6e22e">write</span>(serialize);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (SQLException e) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// TODO Auto-generated catch block</span>
+</span></span><span style="display:flex;"><span>            e.<span style="color:#a6e22e">printStackTrace</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doPost</span>(HttpServletRequest request,
+</span></span><span style="display:flex;"><span>            HttpServletResponse response) <span style="color:#66d9ef">throws</span> ServletException, IOException {
+</span></span><span style="display:flex;"><span>        doGet(request, response);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>6、从页面显示三级联动</p>
+<pre tabindex="0"><code class="language-jsp" data-lang="jsp">&lt;%@ page language=&#34;java&#34; contentType=&#34;text/html; charset=UTF-8&#34;
     pageEncoding=&#34;UTF-8&#34;%&gt;
 &lt;%@ taglib prefix=&#34;c&#34;  uri=&#34;http://java.sun.com/jsp/jstl/core&#34;%&gt;
 &lt;c:set var=&#34;root&#34; value=&#34;${pageContext.request.contextPath }&#34;&gt;&lt;/c:set&gt;
@@ -228,30 +331,71 @@ $(function() {
     &lt;/center&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</code></pre><p>上面的javascript代码可以优化成这样</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span><span style=color:#66d9ef>function</span> <span style=color:#a6e22e>loadData</span>(<span style=color:#a6e22e>value</span>, <span style=color:#a6e22e>ele</span>){
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>$</span>.<span style=color:#a6e22e>get</span>(
-</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;${root}/getData?parentid=&#34;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>value</span>,
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>function</span>(<span style=color:#a6e22e>data</span>) {
-</span></span><span style=display:flex><span>                <span style=color:#75715e>//遍历数据
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>$</span>(<span style=color:#a6e22e>data</span>).<span style=color:#a6e22e>each</span>(<span style=color:#66d9ef>function</span>(){
-</span></span><span style=display:flex><span>                    <span style=color:#75715e>//创建option标签,追加到菜单中
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                    <span style=color:#a6e22e>ele</span>.<span style=color:#a6e22e>append</span>(<span style=color:#e6db74>&#34;&lt;option value=&#39;&#34;</span><span style=color:#f92672>+</span><span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>codeid</span><span style=color:#f92672>+</span><span style=color:#e6db74>&#34;&#39;&gt;&#34;</span><span style=color:#f92672>+</span><span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>cityName</span><span style=color:#f92672>+</span><span style=color:#e6db74>&#34;&lt;/option&gt;&#34;</span>);
-</span></span><span style=display:flex><span>                }); 
-</span></span><span style=display:flex><span>            },<span style=color:#e6db74>&#34;json&#34;</span>);
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#a6e22e>$</span>(<span style=color:#66d9ef>function</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>$pro</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>$</span>(<span style=color:#e6db74>&#34;#province&#34;</span>);
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//加载省和直辖市数据
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>loadData</span>(<span style=color:#ae81ff>0</span>,<span style=color:#a6e22e>$pro</span>);
-</span></span><span style=display:flex><span>    <span style=color:#75715e>//加载市
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>$</span>(<span style=color:#e6db74>&#34;#city,#area&#34;</span>).<span style=color:#a6e22e>change</span>(<span style=color:#66d9ef>function</span> () {
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// 清空原来的数据
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>$</span>(<span style=color:#66d9ef>this</span>).<span style=color:#a6e22e>nextAll</span>().<span style=color:#a6e22e>prop</span>(<span style=color:#e6db74>&#34;length&#34;</span>,<span style=color:#ae81ff>1</span>);
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>loadData</span>(<span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>value</span>, <span style=color:#a6e22e>$</span>(<span style=color:#66d9ef>this</span>).<span style=color:#a6e22e>next</span>());
-</span></span><span style=display:flex><span>    });
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>});
-</span></span></code></pre></div><p>效果图如下:</p><p><img src=https://ueyao.github.io/image-hosting/blog/2017/09/2017-09-14_172045.gif alt=ajax三级联动效果图></p><p><a href=https://github.com/flowstone/blog-example-code/tree/master/jsp-ajax-three-level-linkage-effect-example>代码托管于GitHub</a></p></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
-|
-<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
-| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
+</code></pre><p>上面的javascript代码可以优化成这样</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadData</span>(<span style="color:#a6e22e">value</span>, <span style="color:#a6e22e">ele</span>){
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">get</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;${root}/getData?parentid=&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">value</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">data</span>) {
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">//遍历数据
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                <span style="color:#a6e22e">$</span>(<span style="color:#a6e22e">data</span>).<span style="color:#a6e22e">each</span>(<span style="color:#66d9ef">function</span>(){
+</span></span><span style="display:flex;"><span>                    <span style="color:#75715e">//创建option标签,追加到菜单中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                    <span style="color:#a6e22e">ele</span>.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;&lt;option value=&#39;&#34;</span><span style="color:#f92672">+</span><span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">codeid</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34;&#39;&gt;&#34;</span><span style="color:#f92672">+</span><span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">cityName</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34;&lt;/option&gt;&#34;</span>);
+</span></span><span style="display:flex;"><span>                }); 
+</span></span><span style="display:flex;"><span>            },<span style="color:#e6db74">&#34;json&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">$</span>(<span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">$pro</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">$</span>(<span style="color:#e6db74">&#34;#province&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//加载省和直辖市数据
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">loadData</span>(<span style="color:#ae81ff">0</span>,<span style="color:#a6e22e">$pro</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//加载市
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">$</span>(<span style="color:#e6db74">&#34;#city,#area&#34;</span>).<span style="color:#a6e22e">change</span>(<span style="color:#66d9ef">function</span> () {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 清空原来的数据
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">$</span>(<span style="color:#66d9ef">this</span>).<span style="color:#a6e22e">nextAll</span>().<span style="color:#a6e22e">prop</span>(<span style="color:#e6db74">&#34;length&#34;</span>,<span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">loadData</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">value</span>, <span style="color:#a6e22e">$</span>(<span style="color:#66d9ef">this</span>).<span style="color:#a6e22e">next</span>());
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>效果图如下:</p>
+<p><img src="https://ueyao.github.io/image-hosting/blog/2017/09/2017-09-14_172045.gif" alt="ajax三级联动效果图"></p>
+<p><a href="https://github.com/flowstone/blog-example-code/tree/master/jsp-ajax-three-level-linkage-effect-example">代码托管于GitHub</a></p>
+
+        </article>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+        &copy; Copyright 2024
+        
+        |
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
+        <br />
+        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
+        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+        <br />
+
+    </small>
+</footer></body>
+</html>
