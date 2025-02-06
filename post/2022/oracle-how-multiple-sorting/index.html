@@ -1,324 +1,41 @@
-<!doctype html>
-<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-    <title>薛尧的博客</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="" />
-
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/theme.min.css">
-
-    
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/custom.min.css">
-    
-
-    
-</head>
-<body>
-        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
-    <div class="row">
-        
-        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
-            <a href="../../../" class="text-decoration-none">
-                <img id="home-image" class="rounded-circle"
-                    
-                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
-                    
-                />
-            </a>
-        </div>
-        <div class="col-sm-8 col-12 text-sm-left text-center">
-        
-            <h2 class="m-0 mb-2 mt-4">
-                <a href="../../../" class="text-decoration-none">
-                    
-                        薛尧
-                    
-                </a>
-            </h2>
-            <p class="text-muted mb-1">
-                
-                    Java Developer | Short Video Creator
-                
-            </p>
-            <ul id="nav-links" class="list-inline mb-2">
-                
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
-                    </li>
-                
-            </ul>
-            <ul id="nav-social" class="list-inline">
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="http://github.com/flowstone" target="_blank">
-                            <i class="fab fa-github fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
-                            <i class="fas fa-at fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-            </ul>
-        </div>
-    </div>
-    <hr />
-</header>
-<div class="container">
-    <div class="pl-sm-2">
-        <div class="mb-3">
-            <h3 class="mb-0">如何实现Oracle先组内排序然后再组外排序</h3>
-            
-            <small class="text-muted">发布于 2022-04-29</small>
-        </div>
-
-        <article>
-            <h4 id="问题描述">问题描述</h4>
-<p>工作中遇到一个问题，因为我本人的SQL技术太差了，写了好久，都没有处理好，大概的需求如下，有一个列表，根据一个字段排序，排序后的结果，再根据字段排序。</p>
-<h4 id="问题分析">问题分析</h4>
-<p>为了让读者能够充分理解这个问题，先分解问题
-原始数据如下：</p>
-<table>
-  <thead>
-      <tr>
-          <th>序号</th>
-          <th>名称</th>
-          <th>部门</th>
-          <th>入职时间</th>
-          <th>等级</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>1</td>
-          <td>小明</td>
-          <td>开发部</td>
-          <td>2012-10</td>
-          <td>1</td>
-      </tr>
-      <tr>
-          <td>2</td>
-          <td>小丽</td>
-          <td>账务部</td>
-          <td>2013-01</td>
-          <td>1</td>
-      </tr>
-      <tr>
-          <td>3</td>
-          <td>小华</td>
-          <td>开发部</td>
-          <td>2021-01</td>
-          <td>3</td>
-      </tr>
-      <tr>
-          <td>4</td>
-          <td>小红</td>
-          <td>开发部</td>
-          <td>2001-01</td>
-          <td>2</td>
-      </tr>
-      <tr>
-          <td>5</td>
-          <td>小张</td>
-          <td>账务部</td>
-          <td>2022-01</td>
-          <td>2</td>
-      </tr>
-  </tbody>
-</table>
-<h5 id="1先根据部门分组然后根据等级排序正序">1、先根据部门分组，然后根据等级排序(正序)</h5>
-<p>预期结果如下</p>
-<table>
-  <thead>
-      <tr>
-          <th>序号</th>
-          <th>名称</th>
-          <th>部门</th>
-          <th>入职时间</th>
-          <th>等级</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>1</td>
-          <td>小明</td>
-          <td>开发部</td>
-          <td>2012-10</td>
-          <td>1</td>
-      </tr>
-      <tr>
-          <td>2</td>
-          <td>小红</td>
-          <td>开发部</td>
-          <td>2001-01</td>
-          <td>2</td>
-      </tr>
-      <tr>
-          <td>3</td>
-          <td>小华</td>
-          <td>开发部</td>
-          <td>2021-01</td>
-          <td>3</td>
-      </tr>
-      <tr>
-          <td>4</td>
-          <td>小丽</td>
-          <td>账务部</td>
-          <td>2013-01</td>
-          <td>1</td>
-      </tr>
-      <tr>
-          <td>5</td>
-          <td>小张</td>
-          <td>账务部</td>
-          <td>2022-01</td>
-          <td>2</td>
-      </tr>
-  </tbody>
-</table>
-<h5 id="2先根据部门分组然后根据入职排序倒序">2、先根据部门分组，然后根据入职排序(倒序)</h5>
-<p>预期结果如下</p>
-<table>
-  <thead>
-      <tr>
-          <th>序号</th>
-          <th>名称</th>
-          <th>部门</th>
-          <th>入职时间</th>
-          <th>等级</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>1</td>
-          <td>小丽</td>
-          <td>账务部</td>
-          <td>2013-01</td>
-          <td>1</td>
-      </tr>
-      <tr>
-          <td>2</td>
-          <td>小张</td>
-          <td>账务部</td>
-          <td>2022-01</td>
-          <td>2</td>
-      </tr>
-      <tr>
-          <td>3</td>
-          <td>小明</td>
-          <td>开发部</td>
-          <td>2012-10</td>
-          <td>1</td>
-      </tr>
-      <tr>
-          <td>4</td>
-          <td>小红</td>
-          <td>开发部</td>
-          <td>2001-01</td>
-          <td>2</td>
-      </tr>
-      <tr>
-          <td>5</td>
-          <td>小华</td>
-          <td>开发部</td>
-          <td>2021-01</td>
-          <td>3</td>
-      </tr>
-  </tbody>
-</table>
-<h4 id="解决步骤">解决步骤</h4>
-<p>指定字段分组，组内排序和组外排序</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span>
-</span></span><span style="display:flex;"><span>	T1.<span style="color:#f92672">*</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">from</span>
-</span></span><span style="display:flex;"><span>	(
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">select</span>
-</span></span><span style="display:flex;"><span>		ID,
-</span></span><span style="display:flex;"><span>		DEPARTMENT,
-</span></span><span style="display:flex;"><span>		CREATE_TM,
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">level</span>,
-</span></span><span style="display:flex;"><span>		row_number() over (partition <span style="color:#66d9ef">by</span> DEPARTMENT
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">order</span> <span style="color:#66d9ef">by</span>
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">level</span> <span style="color:#66d9ef">desc</span>) <span style="color:#66d9ef">as</span> NUM
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">from</span>
-</span></span><span style="display:flex;"><span>		USER_INFO
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">where</span>
-</span></span><span style="display:flex;"><span>		DEPARTMENT <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span>) T1
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> (
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">select</span>
-</span></span><span style="display:flex;"><span>		ROWNUM SEQ,
-</span></span><span style="display:flex;"><span>		DEPARTMENT
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">from</span>
-</span></span><span style="display:flex;"><span>		(
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">select</span>
-</span></span><span style="display:flex;"><span>			DEPARTMENT,
-</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">MAX</span>(CREATE_TM)
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">from</span>
-</span></span><span style="display:flex;"><span>			USER_INFO
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span>
-</span></span><span style="display:flex;"><span>			DEPARTMENT
-</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">order</span> <span style="color:#66d9ef">by</span>
-</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">MAX</span>(CREATE_TM))) T2 <span style="color:#66d9ef">on</span>
-</span></span><span style="display:flex;"><span>	T1.DEPARTMENT <span style="color:#f92672">=</span> T2.DEPARTMENT
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">order</span> <span style="color:#66d9ef">by</span>
-</span></span><span style="display:flex;"><span>	T2.SEQ <span style="color:#66d9ef">desc</span>,
-</span></span><span style="display:flex;"><span>	T1.<span style="color:#66d9ef">LEVEL</span> <span style="color:#66d9ef">asc</span>;
-</span></span></code></pre></div><p>说明，T1表是根据DEPARTMENT分组并按照level组内排序(正序)，T2表是根据DEPARTMENT分组并按照创建时间组外排序(倒序)</p>
-
-        </article>
-    </div>
-
-    <div id="disqus_thread"></div>
-<script>
-    window.disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-            </div>
-        </div><footer class="text-center pb-1">
-    <small class="text-muted">
-        
-        &copy; Copyright 2024
-        
-        |
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
-        <br />
-        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
-        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
-        <br />
-
-    </small>
-</footer></body>
-</html>
+<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>如何实现Oracle先组内排序然后再组外排序</h3><small class=text-muted>发布于 2022-04-29</small></div><article><h4 id=问题描述>问题描述</h4><p>工作中遇到一个问题，因为我本人的SQL技术太差了，写了好久，都没有处理好，大概的需求如下，有一个列表，根据一个字段排序，排序后的结果，再根据字段排序。</p><h4 id=问题分析>问题分析</h4><p>为了让读者能够充分理解这个问题，先分解问题
+原始数据如下：</p><table><thead><tr><th>序号</th><th>名称</th><th>部门</th><th>入职时间</th><th>等级</th></tr></thead><tbody><tr><td>1</td><td>小明</td><td>开发部</td><td>2012-10</td><td>1</td></tr><tr><td>2</td><td>小丽</td><td>账务部</td><td>2013-01</td><td>1</td></tr><tr><td>3</td><td>小华</td><td>开发部</td><td>2021-01</td><td>3</td></tr><tr><td>4</td><td>小红</td><td>开发部</td><td>2001-01</td><td>2</td></tr><tr><td>5</td><td>小张</td><td>账务部</td><td>2022-01</td><td>2</td></tr></tbody></table><h5 id=1先根据部门分组然后根据等级排序正序>1、先根据部门分组，然后根据等级排序(正序)</h5><p>预期结果如下</p><table><thead><tr><th>序号</th><th>名称</th><th>部门</th><th>入职时间</th><th>等级</th></tr></thead><tbody><tr><td>1</td><td>小明</td><td>开发部</td><td>2012-10</td><td>1</td></tr><tr><td>2</td><td>小红</td><td>开发部</td><td>2001-01</td><td>2</td></tr><tr><td>3</td><td>小华</td><td>开发部</td><td>2021-01</td><td>3</td></tr><tr><td>4</td><td>小丽</td><td>账务部</td><td>2013-01</td><td>1</td></tr><tr><td>5</td><td>小张</td><td>账务部</td><td>2022-01</td><td>2</td></tr></tbody></table><h5 id=2先根据部门分组然后根据入职排序倒序>2、先根据部门分组，然后根据入职排序(倒序)</h5><p>预期结果如下</p><table><thead><tr><th>序号</th><th>名称</th><th>部门</th><th>入职时间</th><th>等级</th></tr></thead><tbody><tr><td>1</td><td>小丽</td><td>账务部</td><td>2013-01</td><td>1</td></tr><tr><td>2</td><td>小张</td><td>账务部</td><td>2022-01</td><td>2</td></tr><tr><td>3</td><td>小明</td><td>开发部</td><td>2012-10</td><td>1</td></tr><tr><td>4</td><td>小红</td><td>开发部</td><td>2001-01</td><td>2</td></tr><tr><td>5</td><td>小华</td><td>开发部</td><td>2021-01</td><td>3</td></tr></tbody></table><h4 id=解决步骤>解决步骤</h4><p>指定字段分组，组内排序和组外排序</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>	T1.<span style=color:#f92672>*</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>from</span>
+</span></span><span style=display:flex><span>	(
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>		ID,
+</span></span><span style=display:flex><span>		DEPARTMENT,
+</span></span><span style=display:flex><span>		CREATE_TM,
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>level</span>,
+</span></span><span style=display:flex><span>		row_number() over (partition <span style=color:#66d9ef>by</span> DEPARTMENT
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>order</span> <span style=color:#66d9ef>by</span>
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>level</span> <span style=color:#66d9ef>desc</span>) <span style=color:#66d9ef>as</span> NUM
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>from</span>
+</span></span><span style=display:flex><span>		USER_INFO
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>where</span>
+</span></span><span style=display:flex><span>		DEPARTMENT <span style=color:#66d9ef>is</span> <span style=color:#66d9ef>not</span> <span style=color:#66d9ef>null</span>) T1
+</span></span><span style=display:flex><span><span style=color:#66d9ef>left</span> <span style=color:#66d9ef>join</span> (
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>		ROWNUM SEQ,
+</span></span><span style=display:flex><span>		DEPARTMENT
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>from</span>
+</span></span><span style=display:flex><span>		(
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>select</span>
+</span></span><span style=display:flex><span>			DEPARTMENT,
+</span></span><span style=display:flex><span>			<span style=color:#66d9ef>MAX</span>(CREATE_TM)
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>from</span>
+</span></span><span style=display:flex><span>			USER_INFO
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>group</span> <span style=color:#66d9ef>by</span>
+</span></span><span style=display:flex><span>			DEPARTMENT
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>order</span> <span style=color:#66d9ef>by</span>
+</span></span><span style=display:flex><span>			<span style=color:#66d9ef>MAX</span>(CREATE_TM))) T2 <span style=color:#66d9ef>on</span>
+</span></span><span style=display:flex><span>	T1.DEPARTMENT <span style=color:#f92672>=</span> T2.DEPARTMENT
+</span></span><span style=display:flex><span><span style=color:#66d9ef>order</span> <span style=color:#66d9ef>by</span>
+</span></span><span style=display:flex><span>	T2.SEQ <span style=color:#66d9ef>desc</span>,
+</span></span><span style=display:flex><span>	T1.<span style=color:#66d9ef>LEVEL</span> <span style=color:#66d9ef>asc</span>;
+</span></span></code></pre></div><p>说明，T1表是根据DEPARTMENT分组并按照level组内排序(正序)，T2表是根据DEPARTMENT分组并按照创建时间组外排序(倒序)</p></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>

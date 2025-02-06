@@ -1,163 +1,18 @@
-<!doctype html>
-<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-    <title>薛尧的博客</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="" />
-
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/theme.min.css">
-
-    
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/custom.min.css">
-    
-
-    
-</head>
-<body>
-        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
-    <div class="row">
-        
-        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
-            <a href="../../../" class="text-decoration-none">
-                <img id="home-image" class="rounded-circle"
-                    
-                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
-                    
-                />
-            </a>
-        </div>
-        <div class="col-sm-8 col-12 text-sm-left text-center">
-        
-            <h2 class="m-0 mb-2 mt-4">
-                <a href="../../../" class="text-decoration-none">
-                    
-                        薛尧
-                    
-                </a>
-            </h2>
-            <p class="text-muted mb-1">
-                
-                    Java Developer | Short Video Creator
-                
-            </p>
-            <ul id="nav-links" class="list-inline mb-2">
-                
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
-                    </li>
-                
-            </ul>
-            <ul id="nav-social" class="list-inline">
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="http://github.com/flowstone" target="_blank">
-                            <i class="fab fa-github fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
-                            <i class="fas fa-at fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-            </ul>
-        </div>
-    </div>
-    <hr />
-</header>
-<div class="container">
-    <div class="pl-sm-2">
-        <div class="mb-3">
-            <h3 class="mb-0">Java多线程-程序运行堆栈分析</h3>
-            
-            <small class="text-muted">发布于 2019-08-25</small>
-        </div>
-
-        <article>
-            <h2 id="class文件内容">class文件内容</h2>
-<p>class文件包含JAVA程序执行的字节码；数据严格按照格式紧凑排列在class文件中的二进制流，中间无任何分隔符；文件开头有一个0xcafebabe(16进制)特殊的一个标志。</p>
-<p><img src="https://ueyao.github.io/image-hosting/blog/2019/8/program-run-heap-01.png" alt="class文件内容"></p>
-<h2 id="jvm运行时数据区">JVM运行时数据区</h2>
-<p><img src="https://ueyao.github.io/image-hosting/blog/2019/8/program-run-heap-02.png" alt="jvm运行时数据区"></p>
-<p>线程独占：每个线程都会有它独立的空间，随线程生命周期而创建和销毁
-线程共享：所有线程能访问这块内存数据，随虚拟机或者GC而创建和销毁</p>
-<h3 id="方法区">方法区</h3>
-<p>JVM用来存储加载的类信息、常量、静态变量、编译后的代码等数据。
+<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>Java多线程-程序运行堆栈分析</h3><small class=text-muted>发布于 2019-08-25</small></div><article><h2 id=class文件内容>class文件内容</h2><p>class文件包含JAVA程序执行的字节码；数据严格按照格式紧凑排列在class文件中的二进制流，中间无任何分隔符；文件开头有一个0xcafebabe(16进制)特殊的一个标志。</p><p><img src=https://ueyao.github.io/image-hosting/blog/2019/8/program-run-heap-01.png alt=class文件内容></p><h2 id=jvm运行时数据区>JVM运行时数据区</h2><p><img src=https://ueyao.github.io/image-hosting/blog/2019/8/program-run-heap-02.png alt=jvm运行时数据区></p><p>线程独占：每个线程都会有它独立的空间，随线程生命周期而创建和销毁
+线程共享：所有线程能访问这块内存数据，随虚拟机或者GC而创建和销毁</p><h3 id=方法区>方法区</h3><p>JVM用来存储加载的类信息、常量、静态变量、编译后的代码等数据。
 虚拟机规范中这是一个逻辑区划。具体实现根据不同虚拟机来实现。
-如：oracle的HotSpot在java7中方法区放在永久代，java8放在元数据空间，并且通过GC机制对这个区域进行管理</p>
-<h3 id="堆内存">堆内存</h3>
-<p><img src="https://ueyao.github.io/image-hosting/blog/2019/8/program-run-heap-03.png" alt=""></p>
-<p>堆内存还可以细分为：老年代、新生代(Eden、From Survivor、To Survivor)
+如：oracle的HotSpot在java7中方法区放在永久代，java8放在元数据空间，并且通过GC机制对这个区域进行管理</p><h3 id=堆内存>堆内存</h3><p><img src=https://ueyao.github.io/image-hosting/blog/2019/8/program-run-heap-03.png alt></p><p>堆内存还可以细分为：老年代、新生代(Eden、From Survivor、To Survivor)
 JVM启动时创建，存放对象的实例。垃圾回收器主要就是管理堆内存。
-如果满了，就会出现OutOfMemoryError。</p>
-<h3 id="虚拟机栈">虚拟机栈</h3>
-<p>虚拟机栈，每个线程都在这个空间有一个私有的空间。
+如果满了，就会出现OutOfMemoryError。</p><h3 id=虚拟机栈>虚拟机栈</h3><p>虚拟机栈，每个线程都在这个空间有一个私有的空间。
 线程栈由多个栈帧(Stack Frame)组成。
 一个线程会执行一个或多个方法，一个方法对应一个栈帧。
 栈帧内容包含：局部变量表、操作数栈、动态链接、方法返回地址、附件信息等。
-栈内存默认最大是1M，超出则抛出StackOverflowError</p>
-<h3 id="本地方法栈">本地方法栈</h3>
-<p>和虚拟机栈功能类似，虚拟机栈是为虚拟机执行JAVA方法而准备的，本地方法栈是为虚拟机使用Native本地方法而准备。
+栈内存默认最大是1M，超出则抛出StackOverflowError</p><h3 id=本地方法栈>本地方法栈</h3><p>和虚拟机栈功能类似，虚拟机栈是为虚拟机执行JAVA方法而准备的，本地方法栈是为虚拟机使用Native本地方法而准备。
 虚拟机规范没有规定具体的实现，由不同的虚拟机厂商去实现。
-HotSpot虚拟机中虚拟机栈和本地方法栈的实现方式一样的。同样，超出大小以后也会抛出StackOverflowError。</p>
-<h3 id="程序计数器">程序计数器</h3>
-<p>程序计数器(Program Counter Register)记录当前线程执行字节码的位置，存储的是字节码指令地址，如果执行Native方法，则计数器值为空。
+HotSpot虚拟机中虚拟机栈和本地方法栈的实现方式一样的。同样，超出大小以后也会抛出StackOverflowError。</p><h3 id=程序计数器>程序计数器</h3><p>程序计数器(Program Counter Register)记录当前线程执行字节码的位置，存储的是字节码指令地址，如果执行Native方法，则计数器值为空。
 每个线程都在这个空间有一个私有的空间，占用内存空间很少。
-CPU同一时间，只会执行一条线程中的指令。JVM多线程会轮流切换并分配CPU执行时间的方式。为了线程切换后，需要通过程序计数器，来恢复正确的执行位置。</p>
-
-        </article>
-    </div>
-
-    <div id="disqus_thread"></div>
-<script>
-    window.disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-            </div>
-        </div><footer class="text-center pb-1">
-    <small class="text-muted">
-        
-        &copy; Copyright 2024
-        
-        |
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
-        <br />
-        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
-        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
-        <br />
-
-    </small>
-</footer></body>
-</html>
+CPU同一时间，只会执行一条线程中的指令。JVM多线程会轮流切换并分配CPU执行时间的方式。为了线程切换后，需要通过程序计数器，来恢复正确的执行位置。</p></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>

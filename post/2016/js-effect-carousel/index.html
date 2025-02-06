@@ -1,243 +1,105 @@
-<!doctype html>
-<html lang="zh-CN"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-    <title>薛尧的博客</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="" />
-
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/theme.min.css">
-
-    
-    
-    
-    
-    <link rel="stylesheet" href="../../../css/custom.min.css">
-    
-
-    
-</head>
-<body>
-        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
-    <div class="row">
-        
-        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
-            <a href="../../../" class="text-decoration-none">
-                <img id="home-image" class="rounded-circle"
-                    
-                        src="https://ueyao.github.io/image-hosting/blog/avatar.png"
-                    
-                />
-            </a>
-        </div>
-        <div class="col-sm-8 col-12 text-sm-left text-center">
-        
-            <h2 class="m-0 mb-2 mt-4">
-                <a href="../../../" class="text-decoration-none">
-                    
-                        薛尧
-                    
-                </a>
-            </h2>
-            <p class="text-muted mb-1">
-                
-                    Java Developer | Short Video Creator
-                
-            </p>
-            <ul id="nav-links" class="list-inline mb-2">
-                
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../about/" title="关于">关于</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../post/" title="文章">文章</a>
-                    </li>
-                
-                    <li class="list-inline-item">
-                        <a class="badge badge-white " href="../../../categories/" title="分类">分类</a>
-                    </li>
-                
-            </ul>
-            <ul id="nav-social" class="list-inline">
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="http://github.com/flowstone" target="_blank">
-                            <i class="fab fa-github fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-                    <li class="list-inline-item mr-3">
-                        <a href="mailto:xueyao.me#gmail.com" target="_blank">
-                            <i class="fas fa-at fa-1x text-muted"></i>
-                        </a>
-                    </li>
-                
-            </ul>
-        </div>
-    </div>
-    <hr />
-</header>
-<div class="container">
-    <div class="pl-sm-2">
-        <div class="mb-3">
-            <h3 class="mb-0">JS特效-轮播图</h3>
-            
-            <small class="text-muted">发布于 2016-09-17</small>
-        </div>
-
-        <article>
-            <h2 id="效果如下">效果如下</h2>
-<p><img src="https://ueyao.github.io/image-hosting/blog/2016/601849-20160917220146523-52456133.png" alt="轮播图"></p>
-<h2 id="功能分析">功能分析</h2>
-<ol>
-<li>每隔1秒换一张图片</li>
-<li>鼠标移入停止切换、鼠标离开继续切换</li>
-<li>鼠标移入到数字上面的时候,显示和数字对应的图片,并且停止切换,被选中的数字,背景显示橙色</li>
-<li>鼠标离开数字,从该数字后面继续显示</li>
-</ol>
-<h2 id="代码如下">代码如下</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#f92672">&lt;!</span><span style="color:#a6e22e">DOCTYPE</span> <span style="color:#a6e22e">html</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">html</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">head</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;</span><span style="color:#a6e22e">meta</span> <span style="color:#a6e22e">charset</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;utf-8&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;</span><span style="color:#a6e22e">meta</span> <span style="color:#a6e22e">http</span><span style="color:#f92672">-</span><span style="color:#a6e22e">equiv</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;X-UA-Compatible&#34;</span> <span style="color:#a6e22e">content</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;IE=edge&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;</span><span style="color:#a6e22e">title</span><span style="color:#f92672">&gt;&lt;</span><span style="color:#960050;background-color:#1e0010">/title&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;</span><span style="color:#a6e22e">link</span> <span style="color:#a6e22e">rel</span><span style="color:#f92672">=</span><span style="color:#960050;background-color:#1e0010">&#34;</span><span style="color:#a6e22e">stylesheet</span><span style="color:#e6db74">&#34; href=&#34;&#34;&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;style type=&#34;</span><span style="color:#a6e22e">text</span><span style="color:#f92672">/</span><span style="color:#a6e22e">css</span><span style="color:#e6db74">&#34;&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        div,
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        img,
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ul,
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        li {
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            padding: 0px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            margin: 0px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        .content {
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            width: 480px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            height: 300px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            border: 1px solid red;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            margin: 100px auto;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        img {
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            width: 100%;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            height: 100%;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            padding-bottom: 10px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ul li {
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            list-style: none;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            float: left;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            border: 1px solid orange;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            height: 30px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            width: 58px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            text-align: center;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            line-height: 30px;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/style&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/head&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;body&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;div class=&#34;</span><span style="color:#a6e22e">content</span><span style="color:#e6db74">&#34;&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;img src=&#34;</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">img</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.</span><span style="color:#a6e22e">jpg</span><span style="color:#e6db74">&#34; alt=&#34;&#34;&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;ul&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;1&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;2&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;3&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;4&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;5&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;6&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;7&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;li&gt;8&lt;/li&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;/ul&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/div&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;script type=&#34;</span><span style="color:#a6e22e">text</span><span style="color:#f92672">/</span><span style="color:#a6e22e">javascript</span><span style="color:#960050;background-color:#1e0010">&#34;</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">oImg</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">getElementsByTagName</span>(<span style="color:#e6db74">&#39;img&#39;</span>)[<span style="color:#ae81ff">0</span>];
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">count</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">changePic</span>(){
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">count</span> <span style="color:#f92672">++</span>;
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">count</span> <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">8</span>) {
-</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">count</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">oImg</span>.<span style="color:#a6e22e">src</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;img/&#39;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">count</span><span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.jpg&#39;</span>;
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">interID</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">setInterval</span>(<span style="color:#a6e22e">changePic</span>, <span style="color:#ae81ff">1000</span>);
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//鼠标移入停止播放
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">oImg</span>.<span style="color:#a6e22e">onmouseover</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(){
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">clearInterval</span>(<span style="color:#a6e22e">interID</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//鼠标移出继续播放
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">oImg</span>.<span style="color:#a6e22e">onmouseout</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(){
-</span></span><span style="display:flex;"><span>                <span style="color:#75715e">//console.log(interID);
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                <span style="color:#a6e22e">clearInterval</span>(<span style="color:#a6e22e">interID</span>);
-</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">interID</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">setInterval</span>(<span style="color:#a6e22e">changePic</span>, <span style="color:#ae81ff">1000</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//鼠标移入到数字上的时候,显示对应的图片
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">oLi</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">getElementsByTagName</span>(<span style="color:#e6db74">&#39;li&#39;</span>);
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//console.log(oLi.length);
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">num</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">num</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">oLi</span>.<span style="color:#a6e22e">length</span>; <span style="color:#a6e22e">num</span><span style="color:#f92672">++</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//给每个li标签增加属性，保存当前的索引位置
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#a6e22e">oLi</span>[<span style="color:#a6e22e">num</span>].<span style="color:#a6e22e">index</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">num</span>;
-</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//移到到数字上,停止播放
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#a6e22e">oLi</span>[<span style="color:#a6e22e">num</span>].<span style="color:#a6e22e">onmouseover</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(){
-</span></span><span style="display:flex;"><span>                <span style="color:#75715e">//停止播放
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                <span style="color:#a6e22e">clearInterval</span>(<span style="color:#a6e22e">interID</span>);
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">style</span>.<span style="color:#a6e22e">background</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;orange&#39;</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">count</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">index</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#75715e">//调用循环播放图片方法
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                <span style="color:#a6e22e">changePic</span>();
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//移出时,继续从停止的地方播放
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#a6e22e">oLi</span>[<span style="color:#a6e22e">num</span>].<span style="color:#a6e22e">onmouseout</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(){
-</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">clearInterval</span>(<span style="color:#a6e22e">interID</span>);
-</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">interID</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">setInterval</span>(<span style="color:#a6e22e">changePic</span>, <span style="color:#ae81ff">1000</span>);
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">style</span>.<span style="color:#a6e22e">background</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;white&#39;</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">count</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">index</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">changePic</span>();
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">/script&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">/body&gt;</span>
-</span></span></code></pre></div>
-        </article>
-    </div>
-
-    <div id="disqus_thread"></div>
-<script>
-    window.disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xie-yao-de-bo-ke" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-            </div>
-        </div><footer class="text-center pb-1">
-    <small class="text-muted">
-        
-        &copy; Copyright 2024
-        
-        |
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备14012079号</a>
-        <br />
-        由 <a href="https://gohugo.io/" target="_blank">Hugo</a> 强力驱动
-        | 主题 <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
-        <br />
-
-    </small>
-</footer></body>
-</html>
+<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>JS特效-轮播图</h3><small class=text-muted>发布于 2016-09-17</small></div><article><h2 id=效果如下>效果如下</h2><p><img src=https://ueyao.github.io/image-hosting/blog/2016/601849-20160917220146523-52456133.png alt=轮播图></p><h2 id=功能分析>功能分析</h2><ol><li>每隔1秒换一张图片</li><li>鼠标移入停止切换、鼠标离开继续切换</li><li>鼠标移入到数字上面的时候,显示和数字对应的图片,并且停止切换,被选中的数字,背景显示橙色</li><li>鼠标离开数字,从该数字后面继续显示</li></ol><h2 id=代码如下>代码如下</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#f92672>&lt;!</span><span style=color:#a6e22e>DOCTYPE</span> <span style=color:#a6e22e>html</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>html</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>head</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>meta</span> <span style=color:#a6e22e>charset</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;utf-8&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>meta</span> <span style=color:#a6e22e>http</span><span style=color:#f92672>-</span><span style=color:#a6e22e>equiv</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;X-UA-Compatible&#34;</span> <span style=color:#a6e22e>content</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;IE=edge&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>title</span><span style=color:#f92672>&gt;&lt;</span><span style=color:#960050;background-color:#1e0010>/title&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>link</span> <span style=color:#a6e22e>rel</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;stylesheet&#34;</span> <span style=color:#a6e22e>href</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>style</span> <span style=color:#a6e22e>type</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;text/css&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>div</span>,
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>img</span>,
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>ul</span>,
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>li</span> {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>padding</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>0</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>margin</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>0</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>content</span> {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>width</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>480</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>height</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>300</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>border</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>1</span><span style=color:#a6e22e>px</span> <span style=color:#a6e22e>solid</span> <span style=color:#a6e22e>red</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>margin</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>100</span><span style=color:#a6e22e>px</span> <span style=color:#a6e22e>auto</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>img</span> {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>width</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>100</span><span style=color:#f92672>%</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>height</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>100</span><span style=color:#f92672>%</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>padding</span><span style=color:#f92672>-</span><span style=color:#a6e22e>bottom</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>10</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>ul</span> <span style=color:#a6e22e>li</span> {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>list</span><span style=color:#f92672>-</span><span style=color:#a6e22e>style</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>none</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>float</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>left</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>border</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>1</span><span style=color:#a6e22e>px</span> <span style=color:#a6e22e>solid</span> <span style=color:#a6e22e>orange</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>height</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>30</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>width</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>58</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>text</span><span style=color:#f92672>-</span><span style=color:#a6e22e>align</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>center</span>;
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>line</span><span style=color:#f92672>-</span><span style=color:#a6e22e>height</span><span style=color:#f92672>:</span> <span style=color:#ae81ff>30</span><span style=color:#a6e22e>px</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/style&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/head&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>body</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>div</span> <span style=color:#66d9ef>class</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;content&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>img</span> <span style=color:#a6e22e>src</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;./img/1.jpg&#34;</span> <span style=color:#a6e22e>alt</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>ul</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>1</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>2</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>3</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>4</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>5</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>6</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>7</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>li</span><span style=color:#f92672>&gt;</span><span style=color:#ae81ff>8</span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/li&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/ul&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/div&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#a6e22e>script</span> <span style=color:#a6e22e>type</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;text/javascript&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oImg</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>getElementsByTagName</span>(<span style=color:#e6db74>&#39;img&#39;</span>)[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>count</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>changePic</span>(){
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>count</span> <span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>count</span> <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>8</span>) {
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>count</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>oImg</span>.<span style=color:#a6e22e>src</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;img/&#39;</span><span style=color:#f92672>+</span><span style=color:#a6e22e>count</span><span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;.jpg&#39;</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>interID</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>setInterval</span>(<span style=color:#a6e22e>changePic</span>, <span style=color:#ae81ff>1000</span>);
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//鼠标移入停止播放
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>oImg</span>.<span style=color:#a6e22e>onmouseover</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span>(){
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>clearInterval</span>(<span style=color:#a6e22e>interID</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//鼠标移出继续播放
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>oImg</span>.<span style=color:#a6e22e>onmouseout</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span>(){
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//console.log(interID);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>clearInterval</span>(<span style=color:#a6e22e>interID</span>);
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>interID</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>setInterval</span>(<span style=color:#a6e22e>changePic</span>, <span style=color:#ae81ff>1000</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//鼠标移入到数字上的时候,显示对应的图片
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>oLi</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>getElementsByTagName</span>(<span style=color:#e6db74>&#39;li&#39;</span>);
+</span></span><span style=display:flex><span>        <span style=color:#75715e>//console.log(oLi.length);
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>num</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>num</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>oLi</span>.<span style=color:#a6e22e>length</span>; <span style=color:#a6e22e>num</span><span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//给每个li标签增加属性，保存当前的索引位置
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#a6e22e>oLi</span>[<span style=color:#a6e22e>num</span>].<span style=color:#a6e22e>index</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>num</span>;
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//移到到数字上,停止播放
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#a6e22e>oLi</span>[<span style=color:#a6e22e>num</span>].<span style=color:#a6e22e>onmouseover</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span>(){
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//停止播放
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>clearInterval</span>(<span style=color:#a6e22e>interID</span>);
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>style</span>.<span style=color:#a6e22e>background</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;orange&#39;</span>;
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>count</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>index</span>;
+</span></span><span style=display:flex><span>                <span style=color:#75715e>//调用循环播放图片方法
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#a6e22e>changePic</span>();
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#75715e>//移出时,继续从停止的地方播放
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#a6e22e>oLi</span>[<span style=color:#a6e22e>num</span>].<span style=color:#a6e22e>onmouseout</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>function</span>(){
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>clearInterval</span>(<span style=color:#a6e22e>interID</span>);
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>interID</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>setInterval</span>(<span style=color:#a6e22e>changePic</span>, <span style=color:#ae81ff>1000</span>);
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>style</span>.<span style=color:#a6e22e>background</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;white&#39;</span>;
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>count</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>index</span>;
+</span></span><span style=display:flex><span>                <span style=color:#a6e22e>changePic</span>();
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/script&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/body&gt;</span>
+</span></span></code></pre></div></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
