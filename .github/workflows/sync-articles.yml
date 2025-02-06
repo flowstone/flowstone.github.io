@@ -1,0 +1,48 @@
+name: Sync Articles
+
+on:
+  push:
+    branches:
+      - main  # 当推送到主分支时触发
+  schedule:
+    - cron: '0 0 * * *'  # 每天同步一次
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout blog repository
+      - name: Checkout blog repo
+        uses: actions/checkout@v2
+
+      # Checkout articles repository as a submodule
+      - name: Checkout articles repo
+        uses: actions/checkout@v2
+        with:
+          repository: flowstone/blog-articles
+          path: content/post
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Check if there are any changes in the articles repository
+      - name: Check if articles repo has changes
+        run: |
+          cd content/post
+          git fetch origin main
+          # Check for any changes in the 'content/post' folder
+          if [[ $(git diff --stat HEAD origin/main) == *"content/post"* ]]; then
+            echo "Changes detected, syncing articles."
+            echo "yes" > ../sync_needed.txt
+          else
+            echo "No changes detected in articles repo."
+            echo "no" > ../sync_needed.txt
+          fi
+
+      # If there are changes, commit and push them to the blog repo
+      - name: Commit and push articles changes
+        if: success() && steps.check-for-changes.outputs.sync_needed == 'yes'
+        run: |
+          git add content/post
+          git commit -m "Sync articles from new repository"
+          git push origin main
