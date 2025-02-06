@@ -36,6 +36,6 @@ jobs:
       
       - name: Commit and push articles changes
         run: |
-          git submodule update --remote content/post
+          git submodule add https://github.com/flowstone/blog-articles content/post
           git commit -m "Sync articles from new repository"
           git push origin main
