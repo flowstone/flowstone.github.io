@@ -30,27 +30,40 @@
 </span></span></span><span style=display:flex><span><span style=color:#e6db74>          git config --global user.name &#34;Automation Bot&#34;
 </span></span></span><span style=display:flex><span><span style=color:#e6db74>          git config --global user.email &#34;bot@flowstone.dev&#34;</span>          
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>       <span style=color:#75715e># Check if there are any changes in the articles repository</span>
-</span></span><span style=display:flex><span>      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Check if articles repo has changes</span>
+</span></span><span style=display:flex><span>      <span style=color:#75715e># Check if content/post already exists and is a submodule</span>
+</span></span><span style=display:flex><span>      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Check if submodule exists</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>id</span>: <span style=color:#ae81ff>check_submodule</span>
 </span></span><span style=display:flex><span>        <span style=color:#f92672>run</span>: |<span style=color:#e6db74>
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>          cd content/post
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git fetch origin main
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>          # Check for any changes in the &#39;content/post&#39; folder
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>          if [[ $(git diff --stat HEAD origin/main) == *&#34;content/post&#34;* ]]; then
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;Changes detected, syncing articles.&#34;
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;yes&#34; &gt; ../sync_needed.txt
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          if [ -d &#34;content/post/.git&#34; ]; then
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;Submodule already exists&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;exists=true&#34; &gt;&gt; $GITHUB_ENV
 </span></span></span><span style=display:flex><span><span style=color:#e6db74>          else
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;No changes detected in articles repo.&#34;
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;no&#34; &gt; ../sync_needed.txt
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;Submodule does not exist&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            echo &#34;exists=false&#34; &gt;&gt; $GITHUB_ENV
 </span></span></span><span style=display:flex><span><span style=color:#e6db74>          fi</span>          
-</span></span><span style=display:flex><span>      
-</span></span><span style=display:flex><span>      <span style=color:#75715e># If there are changes, commit and push them to the blog repo</span>
-</span></span><span style=display:flex><span>      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Commit and push articles changes</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>if</span>: <span style=color:#ae81ff>success() &amp;&amp; steps.check-for-changes.outputs.sync_needed == &#39;yes&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#75715e># If content/post is not a submodule, add it as a submodule</span>
+</span></span><span style=display:flex><span>      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Add submodule if not exists</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>if</span>: <span style=color:#ae81ff>env.exists == &#39;false&#39;</span>
 </span></span><span style=display:flex><span>        <span style=color:#f92672>run</span>: |<span style=color:#e6db74>
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git rm --cached content/post  # 移除已添加的 content/post 目录
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git commit -m &#34;Sync articles from new repository&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git submodule add https://github.com/flowstone/blog-articles content/post
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git submodule update --init --recursive
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git commit -m &#34;Add blog articles repository as a submodule&#34;
 </span></span></span><span style=display:flex><span><span style=color:#e6db74>          git push origin main</span>          
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#75715e># Sync articles if there are changes</span>
+</span></span><span style=display:flex><span>      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Sync articles</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>if</span>: <span style=color:#ae81ff>env.exists == &#39;true&#39;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>run</span>: |<span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          # 拉取远程子模块更新
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git submodule update --remote content/post
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          # 检查是否有更改，如果有更改则提交
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          git diff --exit-code content/post || (
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            git add content/post
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            git commit -m &#34;Sync articles from new repository&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            git push origin main
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          )</span>          
 </span></span></code></pre></div><p>上述代码展示了核心工作流的详细配置，通过精确的定时任务和细致的变更检测，确保文章同步的准确性和高效性。</p><p>如下图，文章的目录已经变成子模块<img src=https://ueyao.github.io/image-hosting/blog/2025/02/08f834ac884a41b0a99021279c9ec947.png alt>​</p><h3 id=-方案优势>🌟 方案优势</h3><h5 id=关注点分离>关注点分离</h5><p>在写作过程中，我们只需将全部精力聚焦于 <code>blog-articles</code>​ 仓库，无需再为其他无关事务分心。而主仓库则始终保持整洁有序，仅包含静态网站生成器的必要配置，大大提高了管理效率。</p><h5 id=智能同步机制>智能同步机制</h5><p>该方案采用每日定时增量同步（UTC 0 点）的方式，就像一个精准的时钟，按时完成文章的同步工作。同时，通过精准的 diff 检测，能够敏锐地捕捉到文章的细微变化，避免了无效构建，节省了大量的时间和资源。此外，还支持手动触发即时同步，满足了特殊情况下的紧急需求。</p><h3 id=-实现注意事项>🔧 实现注意事项</h3><p>为了确保方案的顺利实施，我们需要遵循特定的目录结构规范。</p><pre tabindex=0><code>blog-articles/
 ├── 2023
 │   ├── tech-article.md
