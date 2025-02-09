@@ -1,0 +1,258 @@
+<!doctype html><html lang=zh-CN><head><title>薛尧的博客</title>
+<meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../../css/theme.min.css><link rel=stylesheet href=../../../css/custom.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../../ class=text-decoration-none>薛尧</a></h2><p class="text-muted mb-1">Java Developer | Short Video Creator</p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../../about/ title=关于>关于</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../post/ title=文章>文章</a></li><li class=list-inline-item><a class="badge badge-white" href=../../../categories/ title=分类>分类</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=http://github.com/flowstone target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li><li class="list-inline-item mr-3"><a href=mailto:xueyao.me#gmail.com target=_blank><i class="fas fa-at fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class=pl-sm-2><div class=mb-3><h3 class=mb-0>PySide6 项目开发全攻略：打造你的文件重命名神器</h3><small class=text-muted>发布于 2025-02-08</small></div><article><p>家人们，今天来给大家唠唠如何用 PySide6 打造一个超实用的文件重命名工具。这篇文章适合想搞点 GUI 开发的 Python 小白，也能帮有经验的大佬查漏补缺。话不多说，咱们开整！</p><h3 id=一开发环境搭建魔法工具大集合>一、开发环境搭建：魔法工具大集合</h3><h4 id=11-开发工具>1.1 开发工具</h4><p>开发前，咱们得先把 “魔法工具” 准备好：</p><ul><li><strong>PyCharm 2023.1</strong>：这可是 Python 开发的神器，智能代码补全就像你的专属小秘书，敲代码的时候自动提示，效率飞起！还集成了 Qt Designer，可视化界面设计，拖拖拽拽就搞定，简直不要太爽！</li><li><strong>Python 3.10</strong>：建议大家用虚拟环境，venv 或者 conda 都行。就好比给你的项目穿上一层 “隔离衣”，每个项目都有自己独立的 Python 环境，互不干扰，再也不用担心包冲突的问题啦！</li><li><strong>PySide6 6.5.0</strong>：Qt 官方钦点的 Python 绑定库，有了它，就能轻松调用 Qt 的各种强大功能，搭建出酷炫的 GUI 界面。</li></ul><h4 id=12-项目结构文件的秘密基地>1.2 项目结构：文件的秘密基地</h4><p>项目结构就像一个有序的小基地，每个文件都有自己的 “小窝”：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>FsPySide6Project/
+</span></span><span style=display:flex><span>├──.gitignore        <span style=color:#75715e># 版本控制的“小卫士”，忽略那些不需要的文件</span>
+</span></span><span style=display:flex><span>├── batch_file_renamer.py  <span style=color:#75715e># 文件重命名的“大脑”，核心功能都在这儿</span>
+</span></span><span style=display:flex><span>├── main.py           <span style=color:#75715e># 程序入口，就像房子的大门，从这儿开始你的旅程</span>
+</span></span><span style=display:flex><span>├── main_window.py    <span style=color:#75715e># 主窗口界面，是你的“门面担当”</span>
+</span></span><span style=display:flex><span>└── requirements.txt  <span style=color:#75715e># 依赖清单，记录着项目需要的各种“小帮手”</span>
+</span></span></code></pre></div><p>来看看这些文件都在干啥：</p><ul><li><strong>.gitignore</strong>：默默守护着项目，把__pycache__/、.idea/ 这些开发环境文件拒之门外，让你的代码仓库干干净净。</li><li><strong>requirements.txt</strong>：里面写着PySide6>=6.5.0，这是项目的 “粮草清单”，告诉别人运行这个项目需要哪些依赖。</li><li><strong>main.py</strong>：程序的启动入口，初始化 QApplication，就像给汽车点火，让整个程序跑起来。</li><li><strong>main_window.py</strong>：主界面的 “大管家”，采用模块化设计，以后想加新功能，就像搭积木一样简单。</li><li><strong>batch_file_renamer.py</strong>：文件重命名业务逻辑的 “神秘组织”，各种复杂的重命名操作都由它来搞定。</li></ul><h3 id=二核心代码解析揭开魔法的神秘面纱>二、核心代码解析：揭开魔法的神秘面纱</h3><h4 id=21-程序入口mainpy>2.1 程序入口（main.py）</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> sys
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> main_window <span style=color:#f92672>import</span> MainWindow
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtWidgets <span style=color:#f92672>import</span> QApplication
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>main</span>():
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 创建Qt应用上下文，就像给程序找了个“大管家”</span>
+</span></span><span style=display:flex><span>    app <span style=color:#f92672>=</span> QApplication(sys<span style=color:#f92672>.</span>argv)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 初始化主窗口，给你的程序打造一个漂亮的“门面”</span>
+</span></span><span style=display:flex><span>    window <span style=color:#f92672>=</span> MainWindow()
+</span></span><span style=display:flex><span>    window<span style=color:#f92672>.</span>setMinimumSize(<span style=color:#ae81ff>300</span>, <span style=color:#ae81ff>250</span>)  <span style=color:#75715e># 设置最小窗口尺寸，保证界面不会“挤成一团”</span>
+</span></span><span style=display:flex><span>    window<span style=color:#f92672>.</span>show()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 进入事件循环，让程序开始“干活”</span>
+</span></span><span style=display:flex><span>    sys<span style=color:#f92672>.</span>exit(app<span style=color:#f92672>.</span>exec())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    main()
+</span></span></code></pre></div><p>这里有几个关键点：</p><ul><li>QApplication：管理 GUI 应用的控制流和主设置，就像一个 “幕后大 boss”，掌控着整个程序的运行。</li><li>sys.exit(app.exec())：程序退出时，它会帮你正确释放资源，就像走的时候把房间打扫干净一样。</li><li>设置最小窗口尺寸：保证 UI 显示完整，不然界面太小，用户操作起来可就麻烦啦！</li></ul><h4 id=22-主窗口实现main_windowpy>2.2 主窗口实现（main_window.py）</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtWidgets <span style=color:#f92672>import</span> QWidget, QVBoxLayout, QPushButton
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtGui <span style=color:#f92672>import</span> QFont
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> batch_file_renamer <span style=color:#f92672>import</span> RenameFileApp
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MainWindow</span>(QWidget):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>        super()<span style=color:#f92672>.</span>__init__()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>init_ui()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>init_ui</span>(self):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>setWindowTitle(<span style=color:#e6db74>&#34;PyQt示例应用&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>setGeometry(<span style=color:#ae81ff>100</span>, <span style=color:#ae81ff>100</span>, <span style=color:#ae81ff>300</span>, <span style=color:#ae81ff>250</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;background-color: #F5F5F5;&#34;</span>)  <span style=color:#75715e># 设置窗口背景色为淡灰色，看起来很舒服</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        layout <span style=color:#f92672>=</span> QVBoxLayout()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 重命名使者，点我就可以开始重命名啦</span>
+</span></span><span style=display:flex><span>        rename_file_btn <span style=color:#f92672>=</span> QPushButton(<span style=color:#e6db74>&#34;重命名使者&#34;</span>)
+</span></span><span style=display:flex><span>        rename_file_btn<span style=color:#f92672>.</span>setFont(QFont(<span style=color:#e6db74>&#39;Arial&#39;</span>, <span style=color:#ae81ff>14</span>))
+</span></span><span style=display:flex><span>        rename_file_btn<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #9C27B0;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                color: white;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 8px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 10px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton:hover {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #8E24AA;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        rename_file_btn<span style=color:#f92672>.</span>clicked<span style=color:#f92672>.</span>connect(self<span style=color:#f92672>.</span>rename_file_btn_clicked)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addWidget(rename_file_btn)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>setLayout(layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>rename_file_btn_clicked</span>(self):
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>&#34;按钮&lt;重命名使者&gt;被点击了&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>rename_file <span style=color:#f92672>=</span> RenameFileApp()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>rename_file<span style=color:#f92672>.</span>show()
+</span></span></code></pre></div><p>主窗口里加了个 “重命名使者” 按钮，一点击就打开子窗口。要是以后想加新功能，就再添加个按钮，绑定个点击事件，简单得很！</p><p>效果图如下：</p><p>​<img src=https://cdn.jsdelivr.net/gh/ueYao/image-hosting@main/blog/2025/02/477a67d96b864ee0b1e9c2c50fd3a541.png alt>​</p><h4 id=23-重命名工具实现batch_file_renamerpy>2.3 重命名工具实现（batch_file_renamer.py）</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> os
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtWidgets <span style=color:#f92672>import</span> QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtGui <span style=color:#f92672>import</span> QFont
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtWidgets <span style=color:#f92672>import</span> QMessageBox
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RenameFileApp</span>(QWidget):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>        super()<span style=color:#f92672>.</span>__init__()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>init_ui()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>init_ui</span>(self):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>setWindowTitle(<span style=color:#e6db74>&#34;文件名批量修改工具&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        layout <span style=color:#f92672>=</span> QVBoxLayout()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 选择文件夹相关部件</span>
+</span></span><span style=display:flex><span>        folder_path_layout <span style=color:#f92672>=</span> QHBoxLayout()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>folder_path_label <span style=color:#f92672>=</span> QLabel(<span style=color:#e6db74>&#34;选择文件夹：&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>folder_path_label<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;color: #333; font-size: 14px;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>folder_path_entry <span style=color:#f92672>=</span> QLineEdit()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>folder_path_entry<span style=color:#f92672>.</span>setFixedWidth(<span style=color:#ae81ff>300</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>folder_path_entry<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QLineEdit {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border: 1px solid #ccc;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 2px 5px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>browse_button <span style=color:#f92672>=</span> QPushButton(<span style=color:#e6db74>&#34;浏览&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>browse_button<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #4CAF50;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                color: white;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 5px 10px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton:hover {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #45a049;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>browse_button<span style=color:#f92672>.</span>clicked<span style=color:#f92672>.</span>connect(self<span style=color:#f92672>.</span>browse_folder)
+</span></span><span style=display:flex><span>        folder_path_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>folder_path_label)
+</span></span><span style=display:flex><span>        folder_path_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>folder_path_entry)
+</span></span><span style=display:flex><span>        folder_path_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>browse_button)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addLayout(folder_path_layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 文件名前缀输入部件</span>
+</span></span><span style=display:flex><span>        prefix_layout <span style=color:#f92672>=</span> QHBoxLayout()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>prefix_label <span style=color:#f92672>=</span> QLabel(<span style=color:#e6db74>&#34;文件名前缀：&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>prefix_label<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;color: #333; font-size: 14px;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>prefix_entry <span style=color:#f92672>=</span> QLineEdit()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>prefix_entry<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QLineEdit {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border: 1px solid #ccc;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 2px 5px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        prefix_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>prefix_label)
+</span></span><span style=display:flex><span>        prefix_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>prefix_entry)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addLayout(prefix_layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 文件名后缀输入部件</span>
+</span></span><span style=display:flex><span>        suffix_layout <span style=color:#f92672>=</span> QHBoxLayout()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>suffix_label <span style=color:#f92672>=</span> QLabel(<span style=color:#e6db74>&#34;文件名后缀：&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>suffix_label<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;color: #333; font-size: 14px;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>suffix_entry <span style=color:#f92672>=</span> QLineEdit()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>suffix_entry<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QLineEdit {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border: 1px solid #ccc;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 2px 5px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        suffix_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>suffix_label)
+</span></span><span style=display:flex><span>        suffix_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>suffix_entry)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addLayout(suffix_layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 查找字符输入部件</span>
+</span></span><span style=display:flex><span>        char_to_find_layout <span style=color:#f92672>=</span> QHBoxLayout()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>char_to_find_label <span style=color:#f92672>=</span> QLabel(<span style=color:#e6db74>&#34;查找字符：&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>char_to_find_label<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;color: #333; font-size: 14px;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>char_to_find_entry <span style=color:#f92672>=</span> QLineEdit()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>char_to_find_entry<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QLineEdit {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border: 1px solid #ccc;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 2px 5px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        char_to_find_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>char_to_find_label)
+</span></span><span style=display:flex><span>        char_to_find_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>char_to_find_entry)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addLayout(char_to_find_layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 替换字符输入部件</span>
+</span></span><span style=display:flex><span>        replace_char_layout <span style=color:#f92672>=</span> QHBoxLayout()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>replace_char_label <span style=color:#f92672>=</span> QLabel(<span style=color:#e6db74>&#34;替换字符：&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>replace_char_label<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;color: #333; font-size: 14px;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>replace_char_entry <span style=color:#f92672>=</span> QLineEdit()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>replace_char_entry<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QLineEdit {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border: 1px solid #ccc;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 2px 5px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        replace_char_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>replace_char_label)
+</span></span><span style=display:flex><span>        replace_char_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>replace_char_entry)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addLayout(replace_char_layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 作者和Github信息文本</span>
+</span></span><span style=display:flex><span>        author_font <span style=color:#f92672>=</span> QFont(<span style=color:#e6db74>&#34;楷体&#34;</span>, <span style=color:#ae81ff>11</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>author_label <span style=color:#f92672>=</span> QLabel(<span style=color:#e6db74>&#34;Author：xueyao.me@gmail.com&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>author_label<span style=color:#f92672>.</span>setFont(author_font)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>author_label<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;color: #007BFF;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>github_label <span style=color:#f92672>=</span> QLabel(<span style=color:#e6db74>&#34;Github：https://github.com/flowstone/FsPySide6Project&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>github_label<span style=color:#f92672>.</span>setFont(author_font)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>github_label<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;color: #007BFF;&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        info_layout <span style=color:#f92672>=</span> QVBoxLayout()
+</span></span><span style=display:flex><span>        info_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>author_label)
+</span></span><span style=display:flex><span>        info_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>github_label)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addLayout(info_layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 操作按钮</span>
+</span></span><span style=display:flex><span>        button_layout <span style=color:#f92672>=</span> QHBoxLayout()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>start_button <span style=color:#f92672>=</span> QPushButton(<span style=color:#e6db74>&#34;开始修改&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>start_button<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #008CBA;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                color: white;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 5px 15px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton:hover {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #007B9A;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>start_button<span style=color:#f92672>.</span>clicked<span style=color:#f92672>.</span>connect(self<span style=color:#f92672>.</span>start_operation)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>exit_button <span style=color:#f92672>=</span> QPushButton(<span style=color:#e6db74>&#34;退出&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>exit_button<span style=color:#f92672>.</span>setStyleSheet(<span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #F44336;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                color: white;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                border-radius: 3px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                padding: 5px 15px;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            QPushButton:hover {
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                background-color: #D32F2F;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            }
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#34;&#34;&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>exit_button<span style=color:#f92672>.</span>clicked<span style=color:#f92672>.</span>connect(self<span style=color:#f92672>.</span>close)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        button_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>start_button)
+</span></span><span style=display:flex><span>        button_layout<span style=color:#f92672>.</span>addWidget(self<span style=color:#f92672>.</span>exit_button)
+</span></span><span style=display:flex><span>        layout<span style=color:#f92672>.</span>addLayout(button_layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>setLayout(layout)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>browse_folder</span>(self):
+</span></span><span style=display:flex><span>        folder_path <span style=color:#f92672>=</span> QFileDialog<span style=color:#f92672>.</span>getExistingDirectory(self, <span style=color:#e6db74>&#34;选择文件夹&#34;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>folder_path_entry<span style=color:#f92672>.</span>setText(folder_path)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>start_operation</span>(self):
+</span></span><span style=display:flex><span>        folder_path <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>folder_path_entry<span style=color:#f92672>.</span>text()
+</span></span><span style=display:flex><span>        prefix <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>prefix_entry<span style=color:#f92672>.</span>text()
+</span></span><span style=display:flex><span>        suffix <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>suffix_entry<span style=color:#f92672>.</span>text()
+</span></span><span style=display:flex><span>        char_to_find <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>char_to_find_entry<span style=color:#f92672>.</span>text()
+</span></span><span style=display:flex><span>        replace_char <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>replace_char_entry<span style=color:#f92672>.</span>text()
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> folder_path:
+</span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>rename_files(folder_path, prefix, suffix, char_to_find, replace_char)
+</span></span><span style=display:flex><span>            QMessageBox<span style=color:#f92672>.</span>information(self, <span style=color:#e6db74>&#34;提示&#34;</span>, <span style=color:#e6db74>&#34;批量文件名修改完成！&#34;</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>            QMessageBox<span style=color:#f92672>.</span>warning(self, <span style=color:#e6db74>&#34;警告&#34;</span>, <span style=color:#e6db74>&#34;请选择要修改的文件夹！&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 修改文件名</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>rename_files</span>(self, folder_path, prefix, suffix, char_to_find, replace_char):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 遍历文件夹下的文件名</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> filename <span style=color:#f92672>in</span> os<span style=color:#f92672>.</span>listdir(folder_path):
+</span></span><span style=display:flex><span>            old_path <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(folder_path, filename)
+</span></span><span style=display:flex><span>            <span style=color:#75715e># 判断是否是文件</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>isfile(old_path):
+</span></span><span style=display:flex><span>                new_filename <span style=color:#f92672>=</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{</span>prefix<span style=color:#e6db74>}{</span>filename<span style=color:#e6db74>}{</span>suffix<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>                <span style=color:#75715e># 判断是否需要进行文件替换操作</span>
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> char_to_find <span style=color:#f92672>and</span> replace_char:
+</span></span><span style=display:flex><span>                    <span style=color:#75715e># 替换字符</span>
+</span></span><span style=display:flex><span>                    new_filename <span style=color:#f92672>=</span> new_filename<span style=color:#f92672>.</span>replace(char_to_find, replace_char)
+</span></span><span style=display:flex><span>                new_path <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(folder_path, new_filename)
+</span></span><span style=display:flex><span>                os<span style=color:#f92672>.</span>rename(old_path, new_path)
+</span></span></code></pre></div><p>这个文件就是重命名的 “魔法工厂”，各种参数设置、文件遍历、重命名操作都在这里完成。选择文件夹、设置前缀后缀、查找替换字符，最后点击 “开始修改”，文件名就乖乖听话啦！</p><p>效果图如下：</p><p>​<img src=https://cdn.jsdelivr.net/gh/ueYao/image-hosting@main/blog/2025/02/99795fce21a64c9293c1af1c921df264.png alt>​</p><h3 id=三运行与部署让你的程序跑起来>三、运行与部署：让你的程序跑起来</h3><ol><li>安装依赖：</li></ol><pre tabindex=0><code>pip install -r requirements.txt
+</code></pre><p>这一步就像给汽车加满油，把项目需要的依赖都安装好，程序才能顺利运行。安装完依赖，就可以运行main.py，启动你的文件重命名神器啦！</p><p>怎么样，家人们，是不是感觉用 PySide6 开发 GUI 应用也不难呀？赶紧动手试试，打造属于自己的文件重命名工具吧！要是在开发过程中有什么问题，欢迎在评论区留言，咱们一起交流！</p><p>要是你在开发中遇到了啥问题，或者对代码还有其他想法，都可以跟我说说，咱们一起把这个文件重命名神器变得更完美！</p><p>附：代码&lt;<a href=https://github.com/flowstone/FsPySide6Project/tree/v0.1.0>Github</a>></p><p>‍</p></article></div><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//xie-yao-de-bo-ke.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; Copyright 2024
+|
+<a href=https://beian.miit.gov.cn/ target=_blank>苏ICP备14012079号</a><br>由 <a href=https://gohugo.io/ target=_blank>Hugo</a> 强力驱动
+| 主题 <a href=https://github.com/austingebauer/devise target=_blank>Devise</a><br></small></footer></body></html>
