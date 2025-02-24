@@ -463,7 +463,7 @@ service_worker:
 
 # Experimental
 live2d:
-  enable: true
+  enable: false
   position: left # left or right
 
 # Experimental
@@ -481,18 +481,25 @@ player:
   # if you enable meting, you must enable aplayer first
   aplayer:
     # https://github.com/DIYgod/APlayer
-    enable: false
+    enable: true
     options:
-      audio: []
+      audio: [{
+        name: 'Call of Silence',
+        artist: '澤野弘之',
+        url: 'https://cdn.jsdelivr.net/gh/ueYao/static_resource@main/Call%20of%20Silence.mp3',
+        cover: 'https://cdn.jsdelivr.net/gh/ueYao/image-hosting@main/blog/2025/02/20250225043234450578.png',
+        lrc: 'https://cdn.jsdelivr.net/gh/ueYao/static_resource@main/Call%20of%20Silence.lrc',
+        theme: '#FADFA3'
+      }]
       fixed: true
-      autoplay:
-      loop:
-      order:
-      preload:
+      autoplay: true
+      loop: 'all'
+      order: 'list'
+      preload: 'auto'
       volume:
       mutex:
       listFolded:
-      lrcType:
+      lrcType: 3
   meting:
     # https://github.com/metowolf/MetingJS
     # if you want to use meting, please enable aplayer first
